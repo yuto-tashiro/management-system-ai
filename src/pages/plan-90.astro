@@ -1,0 +1,85 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Checklist from '../components/Checklist.astro';
+import { PLAN_90 } from '../data/plan90';
+---
+
+<Base title="90日でマイクロ法人のOSをつくる" description="週4〜6時間で、8つの経営ループを一度回す90日の実行プラン。自社を理解する→一つの専門性を仕組みに変える→新しい事業実験を行う。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '90日プラン' }]} />
+      <span class="kicker">90-DAY PLAN</span>
+      <h1>90日でマイクロ法人のOSをつくる</h1>
+      <p class="lead">
+        読んだだけでは会社は変わりません。完璧な仕組みをつくるのではなく、8つのループを一度回してみることが目的です。週あたり4〜6時間を確保できれば実行できる設計です。チェックはこの端末のブラウザに保存されます。
+      </p>
+    </header>
+
+    <div class="measure">
+      {
+        PLAN_90.map((block, bi) => (
+          <section class="section" id={block.id}>
+            <span class="kicker">{block.range}</span>
+            <h2 style="margin-top:0">
+              {bi + 1}. {block.title}
+            </h2>
+            <p>{block.aim}</p>
+            {block.weeks.map((w, wi) => (
+              <div class="week">
+                <h3>{w.week}</h3>
+                <Checklist storageKey={`plan90-${block.id}-${wi}`} items={w.tasks} />
+                {w.links && (
+                  <p class="hint" style="margin-top:-1rem">
+                    使うもの：
+                    {w.links.map((l, i) => (
+                      <>
+                        {i > 0 && '／'}
+                        <a href={l.href}>{l.label}</a>
+                      </>
+                    ))}
+                  </p>
+                )}
+              </div>
+            ))}
+            {block.aiPrompt && (
+              <div class="callout">
+                <div class="callout-title">AIへの依頼例</div>
+                <p>{block.aiPrompt}</p>
+              </div>
+            )}
+            <div class="callout note">
+              <div class="callout-title">この30日の完了条件</div>
+              <p>{block.done}</p>
+            </div>
+          </section>
+        ))
+      }
+
+      <section class="section">
+        <h2>90日後に手元にあるもの</h2>
+        <ul>
+          <li>自社のポジションを示す一文</li>
+          <li>過去案件から抽出した「伸びる構造／止まる構造」</li>
+          <li>社会変化についての仮説</li>
+          <li>一つの標準化されたサービス（プロトコル1枚）</li>
+          <li>最低限の知識資産（ケース記録・原則集・テンプレート）</li>
+          <li>AIと人間の役割分担、および仕込んだスキル</li>
+          <li>一つの新規事業実験と、その学習記録</li>
+          <li>次の90日で改善する課題</li>
+        </ul>
+        <p>
+          この90日を1回で終わらせないことが大切です。2周目は、1周目より確実に速く回ります。終わったら<a href="/diagnosis/#loops">ループ診断</a>をもう一度行い、変化を確かめてください。
+        </p>
+      </section>
+    </div>
+  </div>
+</Base>
+<style>
+  .week h3 {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    margin: 1.2rem 0 0.2rem;
+  }
+</style>

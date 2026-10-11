@@ -1,0 +1,45 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { WORKSHEETS } from '../../data/worksheets';
+import { PHASE_IDS, PHASES } from '../../data/taxonomy';
+
+const groups = [
+  ...PHASE_IDS.map((p) => ({ key: p, label: `${PHASES[p].label} ${PHASES[p].name}`, items: WORKSHEETS.filter((w) => w.phase === p) })),
+  { key: 'all', label: '全フェーズ共通', items: WORKSHEETS.filter((w) => w.phase === 'all') },
+];
+---
+
+<Base title="ワークシート" description="ブラウザ上で記入し、印刷・Markdownで保存できる実践用のワークシート集。入力内容は端末のブラウザにのみ保存されます。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: 'ワークシート' }]} />
+      <span class="kicker">WORKSHEETS</span>
+      <h1>ワークシート</h1>
+      <p class="lead">
+        読むだけでは会社は変わりません。各講座に対応したワークシートを、ブラウザ上で記入できます。印刷・PDF化、Markdownでの保存ができ、入力内容はこの端末のブラウザにだけ保存されます。
+      </p>
+    </header>
+    {
+      groups.map((g) => (
+        <section class="section">
+          <h2 class={g.key !== 'all' ? `phase-${g.key}` : ''}>
+            {g.key !== 'all' && <span class={`phase-badge phase-${g.key}`} style="font-size:0.9rem; vertical-align: 0.15em">{PHASES[g.key as keyof typeof PHASES].label}</span>} {g.label}
+          </h2>
+          <div class="grid">
+            {g.items.map((w) => (
+              <a class="card" href={`/worksheets/${w.id}/`}>
+                <h3>{w.title}</h3>
+                <p>{w.purpose}</p>
+                <div class="meta">
+                  <span>{w.fields.length}項目</span>
+                  {w.lessons.length > 0 && <span>講座 {w.lessons.join('・')}</span>}
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</Base>

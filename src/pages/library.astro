@@ -1,0 +1,145 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import BookItem from '../components/BookItem.astro';
+import { BOOKS, BOOK_THEMES, BOOK_TYPES } from '../data/books';
+import { PHASE_IDS, PHASES } from '../data/taxonomy';
+
+const designatedCount = BOOKS.filter((b) => b.designated).length;
+---
+
+<Base title="文献ライブラリ" description="指定17冊と追加の書籍・学術論文・公的資料を、フェーズ・テーマ・種別で絞り込める文献ライブラリ。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '文献ライブラリ' }]} />
+      <span class="kicker">LIBRARY</span>
+      <h1>文献ライブラリ</h1>
+      <p class="lead">
+        指定の{designatedCount}冊と、空白を埋める書籍・学術論文・公的資料を、フェーズ・テーマ・種別で絞り込めます。要旨は編集部による言い換えで、原典の代わりにはなりません。書籍の主張は「理論の証明」ではなく、それぞれの方法と適用限界を読むための入口として紹介しています。
+      </p>
+    </header>
+
+    <section class="section measure">
+      <h2>読む順番の提案</h2>
+      <ol>
+        <li><strong>全体像</strong>：『世界標準の経営理論』で理論の地図を持つ</li>
+        <li><strong>0→1</strong>：『エフェクチュエーション』→『クリティカル・ビジネス・パラダイム』→『小澤隆生 凡人の事業論』</li>
+        <li><strong>1→10</strong>：『最強の営業戦略』→『ブランディングの科学』→『無形資産が経済を支配する』</li>
+        <li><strong>パートナー網</strong>：『ネットワーク・エフェクト』→『9割の社会問題はビジネスで解決できる』</li>
+        <li><strong>10→100</strong>：『ビジョナリー・カンパニー』→『GROW THE PIE』→『株式会社の世界史』</li>
+      </ol>
+    </section>
+
+    <div class="filters no-print" id="library-filters">
+      <div class="filter-row">
+        <label class="label" for="lib-q">キーワード</label>
+        <input id="lib-q" type="search" placeholder="書名・著者・内容で絞り込む" style="flex:1; min-width: 12rem" />
+      </div>
+      <div class="filter-row" data-group="phase">
+        <span class="label">フェーズ</span>
+        {PHASE_IDS.map((p) => <button class="toggle" type="button" aria-pressed="false" data-value={p}>{PHASES[p].label}</button>)}
+      </div>
+      <div class="filter-row" data-group="type">
+        <span class="label">種別</span>
+        {Object.entries(BOOK_TYPES).map(([k, v]) => <button class="toggle" type="button" aria-pressed="false" data-value={k}>{v}</button>)}
+      </div>
+      <div class="filter-row" data-group="theme">
+        <span class="label">テーマ</span>
+        {Object.entries(BOOK_THEMES).map(([k, v]) => <button class="toggle" type="button" aria-pressed="false" data-value={k}>{v}</button>)}
+      </div>
+      <div class="filter-row" data-group="designated">
+        <span class="label">絞り込み</span>
+        <button class="toggle" type="button" aria-pressed="false" data-value="1">指定17冊のみ</button>
+        <button class="btn btn-quiet" type="button" id="lib-reset" style="min-height:2rem; padding: 0.2rem 0.8rem">条件をクリア</button>
+      </div>
+    </div>
+    <p class="count-line" aria-live="polite" id="lib-count">{BOOKS.length}件</p>
+
+    <ul class="book-list measure" id="book-list" style="max-width: 52rem">
+      {BOOKS.map((b) => <BookItem book={b} />)}
+    </ul>
+    <p class="hint measure" id="lib-empty" hidden>条件に合う文献がありません。条件を減らしてください。</p>
+
+    <section class="section measure">
+      <h2>書誌についての注記</h2>
+      <ul>
+        <li>ご指定の「世界標準の経営戦略」は、入山章栄『世界標準の経営理論』として整理しています。</li>
+        <li>『エフェクチュエーション』は、サラスバシーの体系書（碩学舎）と、吉田満梨・中村龍太の入門書（ダイヤモンド社）を区別しています。</li>
+        <li>『小澤隆生 凡人の事業論』の著者は蛯谷敏です。小澤隆生氏は主題の人物です。</li>
+        <li>「書誌確認中」の表示があるものは、公開前に版元の情報で書名・刊行年・訳者を確認します。</li>
+        <li>書籍の経験談・経営フレームワークは、それ自体で因果効果を保証しません。研究知見・公的指針・HILUCOの実務記録とは別の根拠ラベルで示しています。</li>
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<script>
+  const list = document.getElementById('book-list');
+  const items = Array.from(list?.querySelectorAll<HTMLElement>('li.book') ?? []);
+  const q = document.getElementById('lib-q') as HTMLInputElement | null;
+  const count = document.getElementById('lib-count');
+  const empty = document.getElementById('lib-empty');
+  const groups = Array.from(document.querySelectorAll<HTMLElement>('#library-filters [data-group]'));
+
+  const norm = (s: string) => s.normalize('NFKC').toLowerCase();
+
+  function selected(group: string): string[] {
+    const g = groups.find((x) => x.dataset.group === group);
+    return Array.from(g?.querySelectorAll<HTMLButtonElement>('button.toggle[aria-pressed="true"]') ?? []).map(
+      (b) => b.dataset.value ?? '',
+    );
+  }
+
+  function apply() {
+    const phases = selected('phase');
+    const types = selected('type');
+    const themes = selected('theme');
+    const designated = selected('designated').length > 0;
+    const words = norm(q?.value ?? '')
+      .split(/\s+/)
+      .filter(Boolean);
+    let shown = 0;
+    items.forEach((li) => {
+      const d = li.dataset;
+      const okPhase = phases.length === 0 || phases.some((p) => (d.phases ?? '').split(' ').includes(p));
+      const okType = types.length === 0 || types.includes(d.type ?? '');
+      const okTheme = themes.length === 0 || themes.some((t) => (d.themes ?? '').split(' ').includes(t));
+      const okDes = !designated || d.designated === '1';
+      const text = norm(d.text ?? '');
+      const okWord = words.every((w) => text.includes(w));
+      const visible = okPhase && okType && okTheme && okDes && okWord;
+      li.hidden = !visible;
+      if (visible) shown++;
+    });
+    if (count) count.textContent = `${shown}件 / ${items.length}件`;
+    if (empty) empty.hidden = shown !== 0;
+  }
+
+  groups.forEach((g) =>
+    g.querySelectorAll<HTMLButtonElement>('button.toggle').forEach((b) =>
+      b.addEventListener('click', () => {
+        b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+        apply();
+      }),
+    ),
+  );
+  q?.addEventListener('input', apply);
+  document.getElementById('lib-reset')?.addEventListener('click', () => {
+    document.querySelectorAll('#library-filters button.toggle').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    if (q) q.value = '';
+    apply();
+  });
+
+  // URL の ?phase=0-1 などで初期状態を指定できる
+  const params = new URLSearchParams(location.search);
+  ['phase', 'type', 'theme', 'designated'].forEach((group) => {
+    const v = params.get(group);
+    if (!v) return;
+    const g = groups.find((x) => x.dataset.group === group);
+    g?.querySelectorAll<HTMLButtonElement>('button.toggle').forEach((b) => {
+      if (v.split(',').includes(b.dataset.value ?? '')) b.setAttribute('aria-pressed', 'true');
+    });
+  });
+  if (params.get('q') && q) q.value = params.get('q') ?? '';
+  apply();
+</script>

@@ -1,0 +1,27 @@
+---
+import type { Lesson } from '../lib/content';
+import { lessonHref } from '../lib/content';
+import { LOOP_NAMES, STATUS_LABELS } from '../data/taxonomy';
+import PhaseBadge from './PhaseBadge.astro';
+
+interface Props {
+  lesson: Lesson;
+  headingLevel?: 'h2' | 'h3';
+}
+const { lesson, headingLevel = 'h3' } = Astro.props;
+const d = lesson.data;
+const H = headingLevel;
+---
+<article class={`card phase-card phase-${d.phase}`}>
+  <div class="meta">
+    <span class="num">講座 {d.no}</span>
+    <PhaseBadge phase={d.phase} />
+    <span>{d.duration.split('（')[0]}</span>
+  </div>
+  <H><a class="card-link-cover" href={lessonHref(lesson)} style="color: inherit; text-decoration: none">{d.title}</a></H>
+  <p>{d.summary}</p>
+  <div class="meta">
+    {d.loops.map((l) => <span class="chip chip-loop">{LOOP_NAMES[l].en}</span>)}
+    <span class="status-badge">{STATUS_LABELS[d.status]} {d.version}</span>
+  </div>
+</article>

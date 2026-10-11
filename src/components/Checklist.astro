@@ -1,0 +1,73 @@
+---
+/**
+ * ブラウザ内（localStorage）にだけ状態を保存するチェックリスト。
+ * storageKey はページ間で重複しないものを渡す。
+ */
+interface Props {
+  storageKey: string;
+  items: string[];
+  title?: string;
+}
+const { storageKey, items, title } = Astro.props;
+---
+<div class="checklist-block" data-checklist={storageKey}>
+  {title && <h3>{title}</h3>}
+  <ul class="checklist">
+    {
+      items.map((item, i) => (
+        <li>
+          <label>
+            <input type="checkbox" data-index={i} />
+            <span>{item}</span>
+          </label>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="progress-line" aria-live="polite" data-progress></p>
+</div>
+
+<script>
+  const PREFIX = 'mcm:check:';
+
+  function load(key: string): number[] {
+    try {
+      const raw = localStorage.getItem(PREFIX + key);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed.filter((n) => typeof n === 'number') : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function save(key: string, values: number[]) {
+    try {
+      localStorage.setItem(PREFIX + key, JSON.stringify(values));
+    } catch {
+      /* 保存できない環境でも表示は続ける */
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-checklist]').forEach((block) => {
+    const key = block.dataset.checklist ?? '';
+    const boxes = Array.from(block.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'));
+    const progress = block.querySelector<HTMLElement>('[data-progress]');
+    const checked = new Set(load(key));
+
+    const render = () => {
+      const done = boxes.filter((b) => b.checked).length;
+      if (progress) progress.textContent = `${boxes.length}項目中 ${done}項目にチェック（この端末のブラウザにだけ保存されます）`;
+    };
+
+    boxes.forEach((box) => {
+      const i = Number(box.dataset.index);
+      box.checked = checked.has(i);
+      box.addEventListener('change', () => {
+        const values = boxes.filter((b) => b.checked).map((b) => Number(b.dataset.index));
+        save(key, values);
+        render();
+      });
+    });
+    render();
+  });
+</script>

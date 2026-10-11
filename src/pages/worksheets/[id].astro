@@ -1,0 +1,206 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PhaseBadge from '../../components/PhaseBadge.astro';
+import { WORKSHEETS, type Worksheet } from '../../data/worksheets';
+import { getLessons, lessonHref, lessonsByNos } from '../../lib/content';
+
+export function getStaticPaths() {
+  return WORKSHEETS.map((ws) => ({ params: { id: ws.id }, props: { ws } }));
+}
+
+interface Props {
+  ws: Worksheet;
+}
+const { ws } = Astro.props;
+const lessons = lessonsByNos(await getLessons(), ws.lessons);
+---
+
+<Base title={`ワークシート：${ws.title}`} description={ws.purpose}>
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ href: '/worksheets/', label: 'ワークシート' }, { label: ws.title }]} />
+      <span class="kicker">WORKSHEET</span>
+      <h1>{ws.title}</h1>
+      <p class="lead">{ws.purpose}</p>
+      <div class="chips" style="margin-top: 0.8rem">
+        {ws.phase === 'all' ? <span class="chip">全フェーズ</span> : <PhaseBadge phase={ws.phase} link withName />}
+        {
+          lessons.map((l) => (
+            <a class="chip" href={lessonHref(l)}>
+              講座{l.data.no} {l.data.title}
+            </a>
+          ))
+        }
+      </div>
+    </header>
+
+    <div class="measure">
+      <p class="privacy-note no-print">
+        <strong>入力内容は、この端末のブラウザ（localStorage）にだけ自動保存されます。</strong>サーバーには送信されません。患者・利用者の個人情報、健康情報、顧客の機密は書かないでください。別の端末では表示されないため、残したい内容は「Markdownで保存」や印刷で手元に保管してください。
+      </p>
+
+      {
+        ws.cautions && (
+          <div class="callout warn">
+            <div class="callout-title">記入時の注意</div>
+            <ul style="margin:0; padding-left:1.2rem">
+              {ws.cautions.map((c) => (
+                <li>{c}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
+      <form data-worksheet={ws.id} data-title={ws.title} autocomplete="off">
+        <div class="ws-field">
+          <label for="ws-meta-date">記入日・対象（任意）</label>
+          <input id="ws-meta-date" type="text" name="__meta" placeholder="例：2026-11-01／○○事業" />
+        </div>
+        {
+          ws.fields.map((f) => (
+            <div class="ws-field">
+              <label for={`ws-${f.id}`}>{f.label}</label>
+              {f.hint && <p class="hint">{f.hint}</p>}
+              {f.example && <p class="hint no-print">記入例（仮例）：{f.example}</p>}
+              {f.kind === 'text' ? (
+                <input id={`ws-${f.id}`} type="text" name={f.id} data-label={f.label} />
+              ) : (
+                <textarea id={`ws-${f.id}`} name={f.id} data-label={f.label} rows="4" />
+              )}
+            </div>
+          ))
+        }
+      </form>
+
+      <div class="btn-row no-print" role="group" aria-label="ワークシートの操作">
+        <button class="btn btn-primary" type="button" data-action="download">Markdownで保存</button>
+        <button class="btn" type="button" data-action="copy">Markdownをコピー</button>
+        <button class="btn" type="button" data-action="print">印刷・PDF</button>
+        <button class="btn btn-quiet" type="button" data-action="clear">入力を消す</button>
+      </div>
+      <p class="ws-saved no-print" aria-live="polite" data-status></p>
+
+      <p class="hint no-print">
+        記入例はすべて説明用の仮例で、実在の事例・実績ではありません。完成度は問いません。一度書き切ってから、実践のたびに書き直してください。
+      </p>
+    </div>
+  </div>
+</Base>
+
+<script>
+  const PREFIX = 'mcm:ws:';
+  const form = document.querySelector<HTMLFormElement>('form[data-worksheet]');
+  const status = document.querySelector<HTMLElement>('[data-status]');
+
+  if (form) {
+    const id = form.dataset.worksheet ?? '';
+    const title = form.dataset.title ?? '';
+    const key = PREFIX + id;
+    const fields = Array.from(form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[name], textarea[name]'));
+
+    const setStatus = (msg: string) => {
+      if (status) status.textContent = msg;
+    };
+
+    const read = (): Record<string, string> => {
+      try {
+        const raw = localStorage.getItem(key);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === 'object' ? parsed : {};
+      } catch {
+        return {};
+      }
+    };
+
+    const autosize = (el: HTMLInputElement | HTMLTextAreaElement) => {
+      if (el instanceof HTMLTextAreaElement) {
+        el.style.height = 'auto';
+        el.style.height = `${Math.max(el.scrollHeight + 2, 104)}px`;
+      }
+    };
+
+    const saved = read();
+    fields.forEach((el) => {
+      const v = saved[el.name];
+      if (typeof v === 'string') el.value = v;
+      autosize(el);
+    });
+    if (Object.keys(saved).length > 0) setStatus('このブラウザに保存されている内容を読み込みました。');
+
+    let timer: number | undefined;
+    const save = () => {
+      const data: Record<string, string> = {};
+      fields.forEach((el) => {
+        if (el.value.trim() !== '') data[el.name] = el.value;
+      });
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+        const t = new Date();
+        setStatus(`自動保存しました（${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}）`);
+      } catch {
+        setStatus('このブラウザでは自動保存できません。Markdownで保存してください。');
+      }
+    };
+
+    form.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+      autosize(target);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(save, 400);
+    });
+
+    const toMarkdown = () => {
+      const lines = [`# ${title}`, ''];
+      fields.forEach((el) => {
+        if (el.name === '__meta') {
+          if (el.value.trim()) lines.push(`記入日・対象：${el.value.trim()}`, '');
+          return;
+        }
+        lines.push(`## ${el.dataset.label ?? el.name}`, '', el.value.trim() || '（未記入）', '');
+      });
+      lines.push('---', `出典：マイクロ法人経営マップ／${location.origin}${location.pathname}`);
+      return lines.join('\n');
+    };
+
+    document.querySelector('[data-action="download"]')?.addEventListener('click', () => {
+      const blob = new Blob([toMarkdown()], { type: 'text/markdown;charset=utf-8' });
+      const a = document.createElement('a');
+      const d = new Date();
+      const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+      a.href = URL.createObjectURL(blob);
+      a.download = `${id}-${stamp}.md`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      setStatus('Markdownファイルを保存しました。');
+    });
+
+    document.querySelector('[data-action="copy"]')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(toMarkdown());
+        setStatus('Markdownをクリップボードにコピーしました。');
+      } catch {
+        setStatus('コピーできませんでした。「Markdownで保存」を使ってください。');
+      }
+    });
+
+    document.querySelector('[data-action="print"]')?.addEventListener('click', () => window.print());
+
+    document.querySelector('[data-action="clear"]')?.addEventListener('click', () => {
+      if (!window.confirm('このワークシートの入力をすべて消します。よろしいですか？')) return;
+      fields.forEach((el) => {
+        el.value = '';
+        autosize(el);
+      });
+      try {
+        localStorage.removeItem(key);
+      } catch {
+        /* noop */
+      }
+      setStatus('入力を消しました。');
+    });
+  }
+</script>

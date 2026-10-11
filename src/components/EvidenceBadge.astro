@@ -1,0 +1,16 @@
+---
+import { EVIDENCE, type EvidenceId } from '../data/taxonomy';
+
+interface Props {
+  label: EvidenceId;
+}
+const { label } = Astro.props;
+---
+<a class={`ev-badge ev-${label}`} href={`/about/#evidence-${label}`} title={EVIDENCE[label].meaning}>
+  {EVIDENCE[label].label}
+</a>
+<style>
+  a.ev-badge {
+    text-decoration: none;
+  }
+</style>

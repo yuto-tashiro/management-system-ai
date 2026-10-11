@@ -1,0 +1,51 @@
+---
+import type { Book } from '../data/books';
+import { BOOK_THEMES, BOOK_TYPES } from '../data/books';
+import { PHASES } from '../data/taxonomy';
+
+interface Props {
+  book: Book;
+  compact?: boolean;
+}
+const { book, compact = false } = Astro.props;
+const isLatin = /^[A-Za-z]/.test(book.title);
+const title = isLatin ? book.title : `『${book.title}』`;
+const biblio = [book.authors, book.subtitle && !compact ? book.subtitle : null, book.publisher, book.year]
+  .filter(Boolean)
+  .join('／');
+---
+<li
+  class="book"
+  id={`book-${book.id}`}
+  data-phases={book.phases.join(' ')}
+  data-themes={book.themes.join(' ')}
+  data-type={book.type}
+  data-designated={book.designated ? '1' : '0'}
+  data-text={`${book.title} ${book.subtitle ?? ''} ${book.authors} ${book.summary} ${book.use}`}
+>
+  <h3>
+    {book.url ? <a href={book.url} rel="noopener noreferrer" target="_blank">{title}</a> : title}
+    {book.designated && <span class="star" title="ご指定の17冊">指定17冊</span>}
+    {book.check && <span class="flag" title={book.check}>書誌確認中</span>}
+  </h3>
+  <p class="biblio">{biblio}</p>
+  {
+    !compact && (
+      <>
+        <p>{book.summary}</p>
+        <p class="use">{book.use}</p>
+        <div class="chips" style="margin-top: 0.4rem">
+          <span class="chip">{BOOK_TYPES[book.type]}</span>
+          {book.phases.map((p) => (
+            <span class={`phase-badge phase-${p}`}>{PHASES[p].label}</span>
+          ))}
+          {book.themes.map((t) => (
+            <span class="chip">{BOOK_THEMES[t]}</span>
+          ))}
+        </div>
+        {book.check && <p class="hint">確認事項：{book.check}</p>}
+      </>
+    )
+  }
+  {compact && <p class="use">{book.use}</p>}
+</li>

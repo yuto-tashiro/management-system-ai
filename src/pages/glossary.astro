@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { GLOSSARY_GROUPS, TERMS, type GlossaryGroup } from '../data/glossary';
+
+const groups = Object.entries(GLOSSARY_GROUPS) as [GlossaryGroup, string][];
+---
+
+<Base title="用語集" description="エフェクチュエーション、RBV、SECI、RE-AIM、CEP、要配慮個人情報など、マイクロ法人経営で使う用語の学習用の要約。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '用語集' }]} />
+      <span class="kicker">GLOSSARY</span>
+      <h1>用語集</h1>
+      <p class="lead">このサイトで使う用語を、分野ごとにまとめました。定義は学習用の要約です。法令・制度の用語は、実際の判断の前に原典と最新版を確認してください。</p>
+    </header>
+    <nav class="kana-index" aria-label="分野">
+      {groups.map(([k, v]) => <a class="chip" href={`#g-${k}`}>{v}</a>)}
+    </nav>
+    <div class="measure">
+      {
+        groups.map(([k, v]) => (
+          <section class="section" id={`g-${k}`}>
+            <h2>{v}</h2>
+            <dl class="glossary">
+              {TERMS.filter((t) => t.group === k).map((t) => (
+                <>
+                  <dt id={t.id}>
+                    {t.term}
+                    {t.en && <span class="en">{t.en}</span>}
+                  </dt>
+                  <dd>
+                    <p>{t.body}</p>
+                    {t.see && (
+                      <p class="hint">
+                        関連：
+                        {t.see.map((s, i) => (
+                          <>
+                            {i > 0 && '／'}
+                            <a href={s.href}>{s.label}</a>
+                          </>
+                        ))}
+                      </p>
+                    )}
+                  </dd>
+                </>
+              ))}
+            </dl>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</Base>

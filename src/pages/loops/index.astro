@@ -1,0 +1,74 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import PhaseBadge from '../../components/PhaseBadge.astro';
+import { LOOPS } from '../../data/loops';
+import { LOOP_NAMES } from '../../data/taxonomy';
+---
+
+<Base title="8つの経営ループ" description="SEARCH・POSITION・EXPERIMENT・SERVE・LEARN・TRUST・SYSTEMIZE・RENEW。少人数＋AIで会社を運営するための全体像。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '8つの経営ループ' }]} />
+      <span class="kicker">8 LOOPS</span>
+      <h1>8つの経営ループ</h1>
+      <p class="lead">
+        マーケティング、営業、組織づくり、商品開発――バラバラの知識を、少人数＋AIで会社を運営するための8つの循環として整理します。フェーズが「事業の段階」なら、ループは「経営の機能」です。
+      </p>
+    </header>
+
+    <div class="grid-2">
+      {
+        LOOPS.map((l) => (
+          <a class="card" href={`/loops/${l.id}/`}>
+            <span class="num">
+              {l.order}. {LOOP_NAMES[l.id].en}｜{LOOP_NAMES[l.id].ja}
+            </span>
+            <h3>{l.question}</h3>
+            <p>{l.summary}</p>
+            <div class="meta">
+              <span>{l.theory}</span>
+              {l.phases.map((p) => (
+                <PhaseBadge phase={p} />
+              ))}
+            </div>
+          </a>
+        ))
+      }
+    </div>
+
+    <section class="section measure">
+      <h2>ループは「階段」ではなく「診断と介入」の体系</h2>
+      <p>
+        社会の変化を読む。自分たちの強みと掛け合わせる。小さく試す。顧客との相互作用から学ぶ。学びをチームの知識にする。成果を信頼へ変える。再現できる仕組みをつくる。そして環境の変化に合わせて、また事業を更新する。この循環を回し続けることが、小さな会社の経営です。
+      </p>
+      <p>
+        ただし、8つを同時に回すことはできません。順番に習得する階段ではなく、そのときの症状に合わせて選ぶ<strong>診断と介入の体系</strong>に近いものです。評価して問題点を特定し、優先順位をつけて介入する――セラピストやトレーナーには馴染みのある考え方です。
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>いまの症状</th><th>入口にするループ</th><th>最初にやること</th></tr></thead>
+          <tbody>
+            <tr><td>売上が不安定</td><td><a href="/loops/experiment/">EXPERIMENT</a> と <a href="/loops/serve/">SERVE</a></td><td>目の前の顧客と価値をつくり、現金を確保する</td></tr>
+            <tr><td>売上はあるが忙しすぎる</td><td><a href="/loops/learn/">LEARN</a> と <a href="/loops/systemize/">SYSTEMIZE</a></td><td>自分の仕事を言語化し、渡せる形にする</td></tr>
+            <tr><td>売上も仕組みもあるが伸びない</td><td><a href="/loops/search/">SEARCH</a> と <a href="/loops/position/">POSITION</a></td><td>社会の変化と自社資源の掛け算を見直す</td></tr>
+            <tr><td>今は良いが将来が不安</td><td><a href="/loops/trust/">TRUST</a> と <a href="/loops/renew/">RENEW</a></td><td>信頼を積み、次の事業を探索する</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        <a class="btn btn-primary" href="/diagnosis/#loops">ループ診断（24問）で弱いところを確かめる</a>
+      </p>
+    </section>
+
+    <section class="section measure">
+      <h2>一周すると何が起きるか</h2>
+      <p>
+        ループは、速く回すことよりも、<strong>一度きちんと最後まで回す</strong>ことに意味があります。一周には時間がかかりますが、一周したあとは、次に同じ現象を見たときの判断が明らかに速くなります。実例は<a href="/cases/#time-axis">「人間関係の問題」に見えたものが、時間軸のずれだった</a>を参照してください。
+      </p>
+      <p>
+        経営学では、環境の変化を感知し（Sensing）、機会を捉え（Seizing）、組織を変える（Transforming）能力をダイナミック・ケイパビリティと呼びます。SEARCH → EXPERIMENT → LEARN → SYSTEMIZE → RENEW の循環は、これを小さな会社の規模で実践するものと捉えることができます。
+      </p>
+    </section>
+  </div>
+</Base>

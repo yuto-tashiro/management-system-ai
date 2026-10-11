@@ -1,0 +1,20 @@
+---
+import { BOOK_BY_ID } from '../data/books';
+import BookItem from './BookItem.astro';
+
+interface Props {
+  ids: string[];
+  compact?: boolean;
+}
+const { ids, compact = true } = Astro.props;
+const books = ids.map((id) => BOOK_BY_ID[id]).filter(Boolean);
+---
+{
+  books.length > 0 && (
+    <ul class="book-list">
+      {books.map((b) => (
+        <BookItem book={b} compact={compact} />
+      ))}
+    </ul>
+  )
+}

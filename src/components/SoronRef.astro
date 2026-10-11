@@ -1,0 +1,10 @@
+---
+import { SITE } from '../config';
+
+interface Props {
+  chapters: number[];
+}
+const { chapters } = Astro.props;
+const title = '『AI時代のマイクロ法人経営』';
+---
+{SITE.soronUrl ? <a href={SITE.soronUrl} rel="noopener">{title}</a> : <span>{title}</span>}第{chapters.join('・')}章

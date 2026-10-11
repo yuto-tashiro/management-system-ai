@@ -1,0 +1,153 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { EVIDENCE, EVIDENCE_IDS, PHASES } from '../data/taxonomy';
+---
+
+<Base title="はじめに：このサイトの使い方" description="ヘルスケア・ウェルビーイング領域のマイクロ法人経営を、フェーズ別に、好きなタイミングで好きなところから学ぶための使い方。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: 'はじめに' }]} />
+      <span class="kicker">START HERE</span>
+      <h1>はじめに：このサイトの使い方</h1>
+      <p class="lead">
+        このサイトは、ヘルスケア・ウェルビーイング領域でマイクロ法人を営む、または目指す専門職――理学療法士などのセラピスト、トレーナー、研究者、看護・介護職――と、その協力者のための学習サイトです。
+      </p>
+    </header>
+
+    <div class="measure prose">
+      <h2 id="thesis">このサイトの中心にある考え方</h2>
+      <blockquote>
+        <p>
+          エフェクチュエーション的に小さく始め、複数の収入源を持ちながら得意領域を育て、人を雇わずに横のパートナーと助け合い、共同プロジェクトを通じて互いに成長する。
+        </p>
+      </blockquote>
+      <p>
+        これは「AIを使って楽に稼ぐ方法」ではありません。また、すべての専門職が法人をつくるべきだという話でもありません。自分の時間と専門性を活かして、フリーランスとして心地よく働き続けるのも良い選択です。一方で、自分の知識を社会へ広く実装したい、仲間と仕事をしたい、サービスやプロダクトを残したいなら、フリーランスとは少し違う経営の考え方が必要になります。
+      </p>
+      <p>問いは、「自分はいくら稼げるか？」から、「<strong>自分たちは、どのような能力を持つ会社になるのか？</strong>」へと変わります。</p>
+
+      <h2 id="ways">好きなところから学ぶ、5つの入り方</h2>
+      <p>順番に読む必要はありません。いまの状況に合わせて、入口を選んでください。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>こんなとき</th><th>入口</th></tr></thead>
+          <tbody>
+            <tr><td>自分の事業がどの段階か分からない</td><td><a href="/diagnosis/">フェーズ・ループ診断</a>で現在地を確かめる</td></tr>
+            <tr><td>具体的な悩みがある</td><td><a href="/symptoms/">悩みから探す</a>で、見立てと処方を読む</td></tr>
+            <tr><td>段階はだいたい分かっている</td><td><a href="/phases/">フェーズ別ガイド</a>から、そのフェーズの講座へ</td></tr>
+            <tr><td>特定のテーマを深めたい</td><td><a href="/lessons/">講座一覧</a>のマトリクス、<a href="/loops/">8つの経営ループ</a>、<a href="/themes/">横断テーマ</a></td></tr>
+            <tr><td>とにかく手を動かしたい</td><td><a href="/plan-90/">90日でOSをつくる</a>と<a href="/worksheets/">ワークシート</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="structure">2つの軸：フェーズとループ</h2>
+      <p>
+        <strong>フェーズ</strong>は事業の段階です（{PHASES['0-1'].label} {PHASES['0-1'].name}／{PHASES['1-10'].label} {PHASES['1-10'].name}／{PHASES['10-100'].label} {PHASES['10-100'].name}）。売上や人数ではなく、顧客課題の不確実性と提供方法の再現性で、<strong>事業ごと</strong>に判定します。新しい事業を始めるたびに0→1に戻り、複数のフェーズが同時に走るのが普通です。
+      </p>
+      <p>
+        <strong>経営ループ</strong>は経営の機能です（SEARCH・POSITION・EXPERIMENT・SERVE・LEARN・TRUST・SYSTEMIZE・RENEW）。順番に習得する階段ではなく、症状に合わせて選ぶ「診断と介入」の体系です。
+      </p>
+      <p>フェーズごとに、重心となるループが移ります。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>フェーズ</th><th>重心となるループ</th><th>総論の主な章</th></tr></thead>
+          <tbody>
+            <tr><td><a href="/phases/0-1/">0→1</a></td><td>EXPERIMENT、SERVE、SEARCH</td><td>第3・5・6章</td></tr>
+            <tr><td><a href="/phases/1-10/">1→10</a></td><td>POSITION、LEARN、SYSTEMIZE</td><td>第4・7・9章</td></tr>
+            <tr><td><a href="/phases/10-100/">10→100</a></td><td>TRUST、RENEW、組織、資産</td><td>第8・10・11・12章</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="ladder">変換ラダー：いま、どの段から売上が生まれているか</h2>
+      <p>フリーランスは「専門性 × 自分の時間 × 自分の評判」で成り立ちます。法人として育つには、自分の知識を、自分以外でも価値を生む構造へ変換していきます。</p>
+      <ol class="ladder">
+        <li><strong>Labor</strong>（労働）：自分の時間を売る</li>
+        <li><strong>Expertise</strong>（専門性）：経験を積み、専門性そのものに価値がつく</li>
+        <li><strong>Service</strong>（サービス）：専門性を、顧客が利用できる形に設計する</li>
+        <li><strong>Product</strong>（商品）：教材、評価法、プログラム、アプリにする</li>
+        <li><strong>System</strong>（仕組み）：提供方法を標準化し、チームで再現できるようにする</li>
+        <li><strong>Organization</strong>（組織能力）：自分以外が判断し、改善できる</li>
+        <li><strong>Asset</strong>（事業資産）：ブランド、IP、データ、コード、コンテンツ、顧客基盤が残る</li>
+      </ol>
+      <p>
+        この階段を一段ずつきれいに上がれることはほとんどなく、行き来しながら進みます。上がりきるものではなく、<strong>今月の売上がどの段から生まれているか</strong>を確かめる物差しとして使ってください。
+      </p>
+
+      <h2 id="layers">活動を三つの層に分けてみる</h2>
+      <p>
+        一人の専門家の活動を、<strong>思想の層</strong>（なぜやるのか）、<strong>実践者の層</strong>（誰と一緒にやるのか）、<strong>事業の層</strong>（何をいくらで提供するか）に分けると、活動ごとに違う収益の基準を持てます。すべてを一つの財布に入れると、たいてい短期の売上が勝ち、思想の層が削られていきます。詳しくは<a href="/themes/engines/">事業エンジンと収益のポートフォリオ</a>へ。
+      </p>
+
+      <h2 id="pages">各ページのつくり</h2>
+      <ul>
+        <li><strong>フェーズ別ガイド</strong>：到達点、中核の問い、中核概念、実践ステップ、ヘルスケアでの注意、つまずき、文献、卒業条件</li>
+        <li><strong>講座</strong>：できるようになること、所要時間、前提 → 問い → 考え方 → 具体例 → 判断に使う問い → 実践課題 → 実践記録 → 根拠と出典</li>
+        <li><strong>ワークシート</strong>：ブラウザで記入し、印刷・Markdownで保存（入力はこの端末のブラウザにだけ保存）</li>
+      </ul>
+      <p>講座の完了は、読んだかどうかではなく、手を動かしたかどうかで判断します。</p>
+
+      <h2 id="labels">根拠ラベルの読み方</h2>
+      <p>研究・指針・書籍の提案・社内の仮説を混同しないために、出典には次のラベルをつけています。</p>
+      <ul class="label-list">
+        {
+          EVIDENCE_IDS.map((id) => (
+            <li>
+              <span class={`ev-badge ev-${id}`}>{EVIDENCE[id].label}</span> {EVIDENCE[id].meaning}
+            </li>
+          ))
+        }
+      </ul>
+      <p>詳しくは<a href="/about/">根拠と運営方針</a>を参照してください。</p>
+
+      <h2 id="disclaimer">ご利用にあたって</h2>
+      <p>
+        このサイトは経営の学習教材です。医療・法律・税務の個別の判断は、それぞれの専門家に確認してください。書籍の紹介は要旨の言い換えであり、原典の代わりにはなりません。
+      </p>
+    </div>
+  </div>
+</Base>
+<style>
+  .ladder {
+    list-style: none;
+    padding: 0 !important;
+    counter-reset: lad;
+  }
+  .ladder li {
+    counter-increment: lad;
+    position: relative;
+    padding: 0.55rem 0.8rem 0.55rem 2.6rem;
+    margin: 0 0 0.35rem !important;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+  .ladder li::before {
+    content: counter(lad);
+    position: absolute;
+    left: 0.8rem;
+    top: 0.55rem;
+    font-family: var(--font-mono);
+    color: var(--ink-faint);
+  }
+  .ladder li:nth-child(n) {
+    margin-left: 0;
+  }
+  @media (min-width: 640px) {
+    .ladder li:nth-child(2) { margin-left: 1rem !important; }
+    .ladder li:nth-child(3) { margin-left: 2rem !important; }
+    .ladder li:nth-child(4) { margin-left: 3rem !important; }
+    .ladder li:nth-child(5) { margin-left: 4rem !important; }
+    .ladder li:nth-child(6) { margin-left: 5rem !important; }
+    .ladder li:nth-child(7) { margin-left: 6rem !important; }
+  }
+  .label-list {
+    list-style: none;
+    padding: 0 !important;
+  }
+  .label-list li {
+    margin: 0.5rem 0;
+  }
+</style>

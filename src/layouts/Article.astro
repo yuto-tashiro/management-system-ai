@@ -1,0 +1,50 @@
+---
+import Base from './Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  kicker?: string;
+  lead?: string;
+  crumbs: { href?: string; label: string }[];
+  headings?: { depth: number; slug: string; text: string }[];
+  phaseClass?: string;
+}
+
+const { title, description, kicker, lead, crumbs, headings = [], phaseClass = '' } = Astro.props;
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+<Base title={title} description={description ?? lead}>
+  <div class={`container ${phaseClass}`}>
+    <header class="page-head">
+      <Breadcrumbs items={crumbs} />
+      {kicker && <span class="kicker">{kicker}</span>}
+      <h1>{title}</h1>
+      {lead && <p class="lead">{lead}</p>}
+      <slot name="head" />
+    </header>
+    <div class="with-aside">
+      <div>
+        <slot />
+      </div>
+      <aside aria-label="このページの補助情報">
+        {
+          toc.length > 2 && (
+            <nav class="aside-box" aria-label="目次">
+              <h2>このページの目次</h2>
+              <ul>
+                {toc.map((h) => (
+                  <li class={`depth-${h.depth}`}>
+                    <a href={`#${h.slug}`}>{h.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )
+        }
+        <slot name="aside" />
+      </aside>
+    </div>
+  </div>
+</Base>

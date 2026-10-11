@@ -1,0 +1,96 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import LessonCard from '../../components/LessonCard.astro';
+import { getLessons, lessonHref, lessonsByPhase } from '../../lib/content';
+import { LOOP_IDS, LOOP_NAMES, PHASE_IDS, PHASES } from '../../data/taxonomy';
+
+const lessons = await getLessons();
+---
+
+<Base title="講座一覧" description="0→1・1→10・10→100の12講座。フェーズと経営ループの両方から、好きな講座を選べます。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '講座一覧' }]} />
+      <span class="kicker">LESSONS</span>
+      <h1>講座一覧（12講座）</h1>
+      <p class="lead">
+        各講座は「問い → 考え方 → 具体例 → 判断に使う問い → 実践課題」の順で短く構成しています。順番に読む必要はありません。いまの自分のフェーズと、気になる経営ループの交わるところから始めてください。
+      </p>
+    </header>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>フェーズ × 経営ループで選ぶ</h2>
+        <a href="/loops/">8つの経営ループとは</a>
+      </div>
+      <p class="hint">縦がループ（経営の機能）、横がフェーズ（事業の段階）です。表は横にスクロールできます。</p>
+      <div class="matrix">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">ループ ＼ フェーズ</th>
+              {
+                PHASE_IDS.map((p) => (
+                  <th scope="col">
+                    <a class={`phase-badge phase-${p}`} href={`/phases/${p}/`}>
+                      {PHASES[p].label} {PHASES[p].name}
+                    </a>
+                  </th>
+                ))
+              }
+            </tr>
+          </thead>
+          <tbody>
+            {
+              LOOP_IDS.map((loop) => (
+                <tr>
+                  <th scope="row">
+                    <a href={`/loops/${loop}/`} style="text-decoration:none">
+                      <span style="font-family: var(--font-mono); font-size: 0.8rem">{LOOP_NAMES[loop].en}</span>
+                      <br />
+                      <span style="font-weight:400; font-size: 0.8rem; color: var(--ink-soft)">{LOOP_NAMES[loop].ja}</span>
+                    </a>
+                  </th>
+                  {PHASE_IDS.map((p) => (
+                    <td>
+                      {lessons
+                        .filter((l) => l.data.phase === p && l.data.loops.includes(loop))
+                        .map((l) => (
+                          <a class={`cell-lesson phase-${p}`} href={lessonHref(l)}>
+                            {l.data.no} {l.data.title}
+                          </a>
+                        ))}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {
+      PHASE_IDS.map((p) => (
+        <section class="section" id={`phase-${p}`}>
+          <div class="section-head">
+            <h2>
+              <span class={`phase-badge phase-${p}`} style="font-size: 0.95rem; vertical-align: 0.15em">
+                {PHASES[p].label}
+              </span>{' '}
+              {PHASES[p].name}
+            </h2>
+            <a href={`/phases/${p}/`}>{PHASES[p].label}ガイドを読む</a>
+          </div>
+          <p class="hint" style="margin-top:-0.4rem">{PHASES[p].question}</p>
+          <div class="grid">
+            {lessonsByPhase(lessons, p).map((l) => (
+              <LessonCard lesson={l} />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</Base>

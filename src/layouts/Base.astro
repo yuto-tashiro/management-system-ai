@@ -1,0 +1,127 @@
+---
+import '../styles/global.css';
+import { SITE } from '../config';
+import { NAV_GROUPS, PRIMARY_NAV } from '../data/nav';
+import BrandMark from '../components/BrandMark.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** true のときはサイト設定に関係なく noindex にする */
+  noindex?: boolean;
+}
+
+const { title, description = SITE.description, noindex = false } = Astro.props;
+const path = Astro.url.pathname;
+const isHome = path === '/';
+const fullTitle = isHome ? `${SITE.name}｜${SITE.tagline}` : `${title}｜${SITE.name}`;
+const canonical = new URL(path, SITE.url).toString();
+const robots = !SITE.indexable || noindex ? 'noindex, nofollow' : 'index, follow';
+
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#f8f6f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141819" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content={isHome ? 'website' : 'article'} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="ja_JP" />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">本文へ移動</a>
+    <header class="site-header">
+      <div class="container bar">
+        <a class="brand" href="/" aria-label={`${SITE.name} トップへ`}>
+          <BrandMark />
+          <span>
+            {SITE.name}
+            <small>Healthcare &amp; Well-being Micro-Corp</small>
+          </span>
+        </a>
+        <nav class="nav-primary" aria-label="主要ナビゲーション">
+          <ul>
+            {
+              PRIMARY_NAV.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <details class="nav-mobile">
+          <summary aria-label="メニューを開く">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"
+              ><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+              ></path></svg
+            >
+            メニュー
+          </summary>
+          <nav class="panel" aria-label="サイトメニュー">
+            {
+              NAV_GROUPS.map((group) => (
+                <>
+                  <div class="group-label">{group.label}</div>
+                  <ul>
+                    {group.items.map((item) => (
+                      <li>
+                        <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ))
+            }
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="cols">
+          {
+            NAV_GROUPS.map((group) => (
+              <div>
+                <h2>{group.label}</h2>
+                <ul>
+                  {group.items.map((item) => (
+                    <li>
+                      <a href={item.href}>{item.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+        <p class="fine">
+          運営：{SITE.publisher}｜サイト版：{SITE.version}｜最終確認日：{SITE.reviewedAt}<br />
+          本サイトは経営の学習教材です。医療・法律・税務の個別判断は、それぞれの専門家に確認してください。書籍の紹介は要旨の言い換えであり、原典の代わりにはなりません。
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

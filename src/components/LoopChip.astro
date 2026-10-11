@@ -1,0 +1,21 @@
+---
+import { LOOP_NAMES, type LoopId } from '../data/taxonomy';
+
+interface Props {
+  loop: LoopId;
+  link?: boolean;
+}
+const { loop, link = true } = Astro.props;
+const n = LOOP_NAMES[loop];
+---
+{
+  link ? (
+    <a class="chip chip-loop" href={`/loops/${loop}/`}>
+      {n.en} <span class="ja">{n.ja}</span>
+    </a>
+  ) : (
+    <span class="chip chip-loop">
+      {n.en} <span class="ja">{n.ja}</span>
+    </span>
+  )
+}

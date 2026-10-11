@@ -1,0 +1,361 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { LOOP_QUESTIONS, SCALE_LABELS } from '../data/diagnosis';
+import { LOOPS } from '../data/loops';
+import { LOOP_IDS, LOOP_NAMES, PHASE_IDS, PHASES } from '../data/taxonomy';
+import { getLessons, lessonHref } from '../lib/content';
+
+const lessons = await getLessons();
+
+const payload = {
+  phases: PHASE_IDS.map((p) => ({
+    id: p,
+    label: PHASES[p].label,
+    name: PHASES[p].name,
+    reach: PHASES[p].reach,
+    items: PHASES[p].graduation,
+  })),
+  loops: LOOP_IDS.map((id) => {
+    const loop = LOOPS.find((l) => l.id === id)!;
+    return {
+      id,
+      en: LOOP_NAMES[id].en,
+      ja: LOOP_NAMES[id].ja,
+      question: loop.question,
+      firstMove: loop.firstMove,
+      lessons: lessons
+        .filter((l) => l.data.loops.includes(id))
+        .map((l) => ({ no: l.data.no, title: l.data.title, href: lessonHref(l) })),
+    };
+  }),
+};
+---
+
+<Base title="フェーズ・ループ診断" description="事業ごとのフェーズ（0→1／1→10／10→100）と、8つの経営ループのうち最も弱いところを確かめる自己診断。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '診断' }]} />
+      <span class="kicker">SELF CHECK</span>
+      <h1>フェーズ・ループ診断</h1>
+      <p class="lead">
+        2つの診断で現在地を確かめます。①事業ごとのフェーズ（11問）と、②8つの経営ループのうち最も弱いところ（24問）。どちらか一方だけでもかまいません。
+      </p>
+    </header>
+
+    <div class="measure">
+      <div class="callout note">
+        <div class="callout-title">この診断について</div>
+        <p>
+          点数は経営の良し悪しを判定するものではなく、次に手をつける場所を選ぶための目安です。回答はこの端末のブラウザにだけ保存され、サーバーには送信されません。3か月後にもう一度採点すると、変化が見えます。
+        </p>
+      </div>
+
+      <!-- ① フェーズ診断 -->
+      <section class="section" id="phase">
+        <h2>① フェーズ診断（事業ごと）</h2>
+        <p>
+          会社全体ではなく、<strong>一つの事業</strong>を思い浮かべて答えてください。複数の事業がある場合は、事業ごとに診断します。各フェーズの「卒業条件」を満たしているかを確かめ、満たしていない最初のフェーズを、いまのフェーズとします。
+        </p>
+        <form id="phase-form">
+          <div class="ws-field">
+            <label for="biz-name">診断する事業（任意）</label>
+            <input id="biz-name" type="text" name="biz" placeholder="例：法人向けの職場観察サービス" />
+          </div>
+          {
+            payload.phases.map((p) => (
+              <fieldset class={`phase-${p.id}`} style="border-left: 4px solid var(--phase)">
+                <legend>
+                  <span class={`phase-badge phase-${p.id}`}>{p.label}</span> の卒業条件
+                </legend>
+                <ol class="q-list">
+                  {p.items.map((item, i) => (
+                    <li class="q-item">
+                      <p>{item}</p>
+                      <div class="yn" role="radiogroup" aria-label={item}>
+                        {[
+                          ['2', 'できている'],
+                          ['1', '一部'],
+                          ['0', 'まだ'],
+                        ].map(([v, t]) => (
+                          <label>
+                            <input type="radio" name={`${p.id}-${i}`} value={v} />
+                            {t}
+                          </label>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </fieldset>
+            ))
+          }
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">フェーズを判定する</button>
+            <button class="btn btn-quiet" type="reset">回答をリセット</button>
+          </div>
+        </form>
+        <div id="phase-result" class="result-box" hidden aria-live="polite"></div>
+      </section>
+
+      <!-- ② ループ診断 -->
+      <section class="section" id="loops">
+        <h2>② 8つの経営ループ診断（24問）</h2>
+        <p>各項目を、1点（ほとんどできていない）〜5点（十分できている）で評価してください。ループごとの合計（15点満点）で、最も低いところから手をつけます。</p>
+        <form id="loop-form">
+          {
+            payload.loops.map((loop) => (
+              <fieldset>
+                <legend>
+                  <span style="font-family: var(--font-mono)">{loop.en}</span>｜{loop.ja}：{loop.question}
+                </legend>
+                <ol class="q-list">
+                  {LOOP_QUESTIONS[loop.id].map((q, i) => (
+                    <li class="q-item">
+                      <p>{q}</p>
+                      <div class="scale" role="radiogroup" aria-label={q}>
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <label title={SCALE_LABELS[n - 1] || undefined}>
+                            <input type="radio" name={`${loop.id}-${i}`} value={n} />
+                            {n}
+                          </label>
+                        ))}
+                      </div>
+                      <div class="scale-legend" aria-hidden="true">
+                        <span>{SCALE_LABELS[0]}</span>
+                        <span>{SCALE_LABELS[4]}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </fieldset>
+            ))
+          }
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">結果を見る</button>
+            <button class="btn btn-quiet" type="reset">回答をリセット</button>
+          </div>
+        </form>
+        <div id="loop-result" class="result-box" hidden aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+
+  <script is:inline type="application/json" id="diagnosis-data" set:html={JSON.stringify(payload)} />
+</Base>
+
+<script>
+  type PhaseData = { id: string; label: string; name: string; reach: string; items: string[] };
+  type LoopData = {
+    id: string;
+    en: string;
+    ja: string;
+    question: string;
+    firstMove: string;
+    lessons: { no: string; title: string; href: string }[];
+  };
+  type Payload = { phases: PhaseData[]; loops: LoopData[] };
+
+  const dataEl = document.getElementById('diagnosis-data');
+  const data: Payload = dataEl ? JSON.parse(dataEl.textContent ?? '{}') : { phases: [], loops: [] };
+
+  const store = {
+    get<T>(key: string, fallback: T): T {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? (JSON.parse(raw) as T) : fallback;
+      } catch {
+        return fallback;
+      }
+    },
+    set(key: string, value: unknown) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        /* noop */
+      }
+    },
+  };
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, cls?: string) {
+    const e = document.createElement(tag);
+    if (text !== undefined) e.textContent = text;
+    if (cls) e.className = cls;
+    return e;
+  }
+
+  function link(href: string, text: string) {
+    const a = el('a', text);
+    a.href = href;
+    return a;
+  }
+
+  function restore(form: HTMLFormElement, saved: Record<string, string>) {
+    Object.entries(saved).forEach(([name, value]) => {
+      const input = form.querySelector<HTMLInputElement>(`[name="${CSS.escape(name)}"][value="${CSS.escape(value)}"]`);
+      if (input) input.checked = true;
+      const text = form.querySelector<HTMLInputElement>(`input[type="text"][name="${CSS.escape(name)}"]`);
+      if (text) text.value = value;
+    });
+  }
+
+  function collect(form: HTMLFormElement) {
+    const out: Record<string, string> = {};
+    new FormData(form).forEach((v, k) => {
+      if (typeof v === 'string' && v !== '') out[k] = v;
+    });
+    return out;
+  }
+
+  // ---------- ① フェーズ診断 ----------
+  const phaseForm = document.getElementById('phase-form') as HTMLFormElement | null;
+  const phaseResult = document.getElementById('phase-result');
+  const PHASE_KEY = 'mcm:diag:phase';
+
+  if (phaseForm && phaseResult) {
+    restore(phaseForm, store.get<Record<string, string>>(PHASE_KEY, {}));
+
+    phaseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const answers = collect(phaseForm);
+      store.set(PHASE_KEY, answers);
+
+      const unanswered = data.phases.reduce(
+        (n, p) => n + p.items.filter((_, i) => answers[`${p.id}-${i}`] === undefined).length,
+        0,
+      );
+
+      let current: PhaseData | null = null;
+      const gaps: { phase: PhaseData; item: string; partial: boolean }[] = [];
+      for (const p of data.phases) {
+        const notDone = p.items
+          .map((item, i) => ({ item, v: answers[`${p.id}-${i}`] }))
+          .filter((x) => x.v !== '2');
+        if (notDone.length > 0) {
+          current = p;
+          notDone.forEach((x) => gaps.push({ phase: p, item: x.item, partial: x.v === '1' }));
+          break;
+        }
+      }
+
+      phaseResult.replaceChildren();
+      const biz = answers.biz ? `「${answers.biz}」は、` : 'この事業は、';
+      if (current) {
+        phaseResult.append(el('h3', `${biz}いま ${current.label}（${current.name}）のフェーズにいます`));
+        phaseResult.append(el('p', `到達点：${current.reach}`));
+        phaseResult.append(el('p', 'まだ満たしていない卒業条件：'));
+        const ul = el('ul');
+        gaps.forEach((g) => ul.append(el('li', `${g.item}${g.partial ? '（一部できている）' : ''}`)));
+        phaseResult.append(ul);
+        const p = el('p');
+        p.append(link(`/phases/${current.id}/`, `${current.label}ガイドを読む`), document.createTextNode('　'), link('/lessons/', '講座一覧'));
+        phaseResult.append(p);
+      } else {
+        phaseResult.append(el('h3', `${biz}10→100の卒業条件まで満たしています`));
+        phaseResult.append(
+          el('p', '仕組みと仲間で続く状態に近づいています。探索の時間を確保し、新しい事業の0→1や、パートナー網との共同事業に取り組む段階です。'),
+        );
+        const p = el('p');
+        p.append(link('/loops/renew/', 'RENEWループ'), document.createTextNode('　'), link('/lessons/11-scenarios/', '講座11'));
+        phaseResult.append(p);
+      }
+      if (unanswered > 0) phaseResult.append(el('p', `未回答の項目が${unanswered}件あります。未回答は「まだ」として扱っています。`, 'hint'));
+      phaseResult.append(el('p', '複数のフェーズの課題が同時に出ることもあります。気になる条件があれば、他のフェーズのガイドも読んでください。', 'hint'));
+      phaseResult.hidden = false;
+      phaseResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    phaseForm.addEventListener('reset', () => {
+      store.set(PHASE_KEY, {});
+      phaseResult.hidden = true;
+    });
+  }
+
+  // ---------- ② ループ診断 ----------
+  const loopForm = document.getElementById('loop-form') as HTMLFormElement | null;
+  const loopResult = document.getElementById('loop-result');
+  const LOOP_KEY = 'mcm:diag:loops';
+  const HISTORY_KEY = 'mcm:diag:loops:history';
+
+  type HistoryEntry = { date: string; scores: Record<string, number> };
+
+  if (loopForm && loopResult) {
+    restore(loopForm, store.get<Record<string, string>>(LOOP_KEY, {}));
+
+    loopForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const answers = collect(loopForm);
+      store.set(LOOP_KEY, answers);
+
+      let unanswered = 0;
+      const scores: Record<string, number> = {};
+      data.loops.forEach((loop) => {
+        let sum = 0;
+        for (let i = 0; i < 3; i++) {
+          const v = Number(answers[`${loop.id}-${i}`]);
+          if (!v) unanswered++;
+          sum += v || 0;
+        }
+        scores[loop.id] = sum;
+      });
+
+      const min = Math.min(...Object.values(scores));
+      const weakest = data.loops.filter((l) => scores[l.id] === min);
+      const history = store.get<HistoryEntry[]>(HISTORY_KEY, []);
+      const prev = history[history.length - 1];
+      const today = new Date().toISOString().slice(0, 10);
+      if (unanswered === 0) {
+        const next = history.filter((h) => h.date !== today);
+        next.push({ date: today, scores });
+        store.set(HISTORY_KEY, next.slice(-12));
+      }
+
+      loopResult.replaceChildren();
+      loopResult.append(el('h3', 'ループごとの合計（15点満点）'));
+      const bars = el('ul', undefined, 'bars');
+      data.loops.forEach((loop) => {
+        const li = el('li', undefined, scores[loop.id] === min ? 'weakest' : undefined);
+        const name = el('span', `${loop.en}`);
+        name.title = loop.ja;
+        const track = el('span', undefined, 'track');
+        const fill = el('span', undefined, 'fill');
+        fill.style.width = `${(scores[loop.id] / 15) * 100}%`;
+        track.append(fill);
+        const diff = prev && prev.date !== today && prev.scores[loop.id] !== undefined ? scores[loop.id] - prev.scores[loop.id] : null;
+        const score = el('span', `${scores[loop.id]}${diff ? (diff > 0 ? ` +${diff}` : ` ${diff}`) : ''}`, 'score');
+        li.append(name, track, score);
+        bars.append(li);
+      });
+      loopResult.append(bars);
+      if (prev && prev.date !== today) loopResult.append(el('p', `右端の＋−は、前回（${prev.date}）との差です。`, 'hint'));
+
+      loopResult.append(el('h3', `最も低いのは ${weakest.map((w) => `${w.en}（${w.ja}）`).join('・')}`));
+      weakest.forEach((w) => {
+        const p = el('p');
+        p.append(el('strong', '最初の一手：'), document.createTextNode(w.firstMove));
+        loopResult.append(p);
+        const p2 = el('p');
+        p2.append(link(`/loops/${w.id}/`, `${w.en}のページへ`));
+        w.lessons.forEach((l) => {
+          p2.append(document.createTextNode('　'));
+          p2.append(link(l.href, `講座${l.no} ${l.title}`));
+        });
+        loopResult.append(p2);
+      });
+      loopResult.append(
+        el('p', '合計点が低いこと自体は問題ではありません。最も低い項目を一つ選び、次の90日で改善してみてください。', 'hint'),
+      );
+      const p3 = el('p');
+      p3.append(link('/plan-90/', '90日でOSをつくる'));
+      loopResult.append(p3);
+      if (unanswered > 0) loopResult.append(el('p', `未回答の項目が${unanswered}件あります（0点として計算。履歴には保存していません）。`, 'hint'));
+      loopResult.hidden = false;
+      loopResult.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    loopForm.addEventListener('reset', () => {
+      store.set(LOOP_KEY, {});
+      loopResult.hidden = true;
+    });
+  }
+</script>

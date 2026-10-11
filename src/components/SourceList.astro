@@ -1,0 +1,41 @@
+---
+import EvidenceBadge from './EvidenceBadge.astro';
+import type { EvidenceId } from '../data/taxonomy';
+
+interface Props {
+  sources: { title: string; label: EvidenceId; url?: string; note?: string }[];
+}
+const { sources } = Astro.props;
+---
+{
+  sources.length > 0 && (
+    <ul class="source-list">
+      {sources.map((s) => (
+        <li>
+          <EvidenceBadge label={s.label} />{' '}
+          {s.url ? (
+            <a href={s.url} rel="noopener noreferrer" target="_blank">
+              {s.title}
+            </a>
+          ) : (
+            <span>{s.title}</span>
+          )}
+          {s.note && <span class="hint">（{s.note}）</span>}
+        </li>
+      ))}
+    </ul>
+  )
+}
+<style>
+  .source-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 1.5rem;
+    font-size: 0.9rem;
+  }
+  .source-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+    line-height: 1.7;
+  }
+</style>

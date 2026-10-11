@@ -1,0 +1,213 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { getLessons, getThemes, lessonHref, lessonsByPhase } from '../lib/content';
+import { SYMPTOMS } from '../data/symptoms';
+import { LOOPS } from '../data/loops';
+import { WORKSHEETS } from '../data/worksheets';
+import { BOOKS } from '../data/books';
+import { LOOP_NAMES, PHASE_IDS, PHASES } from '../data/taxonomy';
+import { SITE } from '../config';
+
+const lessons = await getLessons();
+const themes = await getThemes();
+const phaseEntries = await getCollection('phases');
+const summaryOf = (p: string) => phaseEntries.find((e) => e.data.phase === p)?.data.summary ?? '';
+const featuredSymptoms = SYMPTOMS.filter((s) => ['unstable-revenue', 'too-busy', 'not-growing', 'future-anxiety'].includes(s.id));
+---
+
+<Base title="ホーム" description={SITE.description}>
+  <div class="container">
+    <section class="hero">
+      <span class="kicker">HEALTHCARE &amp; WELL-BEING MICRO-CORP</span>
+      <h1>小さく始め、横に組み、<br />仕組みで続く会社をつくる。</h1>
+      <p class="lead">
+        ヘルスケア・ウェルビーイング領域でマイクロ法人を営む・目指す専門職のための学習サイトです。0→1・1→10・10→100のフェーズ別に、必要なときに、必要なところから学べます。
+      </p>
+      <p class="thesis">
+        エフェクチュエーション的に小さく始め、複数の収入源を持ちながら得意領域を育て、人を雇わずに横のパートナーと助け合い、共同プロジェクトを通じて互いに成長する。
+      </p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/diagnosis/">現在地を診断する</a>
+        <a class="btn" href="/start/">はじめに：使い方を読む</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>好きなところから学ぶ</h2>
+        <a href="/search/">サイト内検索</a>
+      </div>
+      <div class="entry-grid">
+        <a class="entry" href="/phases/"><strong>フェーズから</strong><span>0→1・1→10・10→100。いまの事業の段階で読む</span></a>
+        <a class="entry" href="/symptoms/"><strong>悩みから</strong><span>売上が不安定、忙しすぎる、伸びない、将来が不安</span></a>
+        <a class="entry" href="/lessons/"><strong>講座から</strong><span>12講座を、フェーズ×ループのマトリクスで選ぶ</span></a>
+        <a class="entry" href="/loops/"><strong>経営ループから</strong><span>SEARCHからRENEWまで、8つの経営の機能</span></a>
+        <a class="entry" href="/plan-90/"><strong>90日プランで</strong><span>週4〜6時間で、ループを一度回してみる</span></a>
+        <a class="entry" href="/worksheets/"><strong>ワークシートで</strong><span>{WORKSHEETS.length}種類。ブラウザで書いて、印刷・保存</span></a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>3つのフェーズと横断テーマ</h2>
+        <a href="/phases/">フェーズ別ガイド</a>
+      </div>
+      <div class="phase-map">
+        {
+          PHASE_IDS.map((p) => (
+            <a class={`phase-col phase-${p}`} href={`/phases/${p}/`}>
+              <span class="phase-label">{PHASES[p].label}</span>
+              <span class="phase-name">{PHASES[p].name}</span>
+              <p>
+                <strong>{PHASES[p].reach}</strong>
+              </p>
+              <p>{summaryOf(p)}</p>
+            </a>
+          ))
+        }
+      </div>
+      <div class="cross-band">
+        <strong>全フェーズを支える</strong>
+        {themes.map((t) => <a href={`/themes/${t.id}/`}>{t.data.title}</a>)}
+      </div>
+      <p class="hint" style="margin-top:0.75rem">
+        フェーズは会社全体ではなく事業ごとに判定します。新しい事業を始めるたびに0→1に戻り、複数のフェーズが同時に走るのが普通です。
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>いま、こんな状態ですか？</h2>
+        <a href="/symptoms/">悩みの一覧（{SYMPTOMS.length}件）</a>
+      </div>
+      <div class="grid-2">
+        {
+          featuredSymptoms.map((s) => (
+            <a class="card" href={`/symptoms/#${s.id}`}>
+              <h3>{s.title}</h3>
+              <p>{s.prescription}</p>
+              <div class="meta">
+                {s.loops.map((l) => (
+                  <span class="chip chip-loop">{LOOP_NAMES[l].en}</span>
+                ))}
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>12の講座</h2>
+        <a href="/lessons/">講座一覧とマトリクス</a>
+      </div>
+      <div class="grid">
+        {
+          PHASE_IDS.map((p) => (
+            <div class={`card phase-card phase-${p}`}>
+              <div class="meta">
+                <span class={`phase-badge phase-${p}`}>
+                  {PHASES[p].label} {PHASES[p].name}
+                </span>
+              </div>
+              <ol class="lesson-mini">
+                {lessonsByPhase(lessons, p).map((l) => (
+                  <li>
+                    <a href={lessonHref(l)}>
+                      <span class="num">{l.data.no}</span> {l.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>8つの経営ループ</h2>
+        <a href="/loops/">ループの考え方</a>
+      </div>
+      <div class="loop-strip">
+        {
+          LOOPS.map((l) => (
+            <a href={`/loops/${l.id}/`} class="loop-pill">
+              <span class="en">{LOOP_NAMES[l.id].en}</span>
+              <span class="q">{l.question}</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section grid-2">
+      <a class="card" href="/library/">
+        <span class="kicker" style="margin:0">LIBRARY</span>
+        <h3>文献ライブラリ（{BOOKS.length}件）</h3>
+        <p>指定17冊と、書籍・学術論文・公的資料を、フェーズ・テーマで絞り込み。</p>
+      </a>
+      <a class="card" href="/about/">
+        <span class="kicker" style="margin:0">EDITORIAL POLICY</span>
+        <h3>根拠と運営方針</h3>
+        <p>研究知見・公的指針・書籍の提案・HILUCOの仮説を、5つの根拠ラベルで区別しています。</p>
+      </a>
+    </section>
+  </div>
+</Base>
+<style>
+  .lesson-mini {
+    list-style: none;
+    padding: 0;
+    margin: 0.3rem 0 0;
+  }
+  .lesson-mini li {
+    border-bottom: 1px solid var(--line);
+  }
+  .lesson-mini li:last-child {
+    border-bottom: 0;
+  }
+  .lesson-mini a {
+    display: block;
+    padding: 0.5rem 0;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .lesson-mini a:hover {
+    color: var(--link);
+  }
+  .loop-strip {
+    display: grid;
+    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  }
+  .loop-pill {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .loop-pill:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow);
+  }
+  .loop-pill .en {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+  .loop-pill .q {
+    font-size: 0.9rem;
+  }
+</style>

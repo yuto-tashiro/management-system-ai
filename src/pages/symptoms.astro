@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PhaseBadge from '../components/PhaseBadge.astro';
+import LoopChip from '../components/LoopChip.astro';
+import { SYMPTOMS } from '../data/symptoms';
+import { WORKSHEET_BY_ID } from '../data/worksheets';
+import { getLessons, lessonHref, lessonsByNos } from '../lib/content';
+
+const lessons = await getLessons();
+---
+
+<Base title="悩みから探す" description="売上が不安定、忙しすぎる、伸びない、将来が不安――いまの悩みから、読むべき講座・ループ・ワークシートを探す。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '悩みから探す' }]} />
+      <span class="kicker">BY SYMPTOM</span>
+      <h1>悩みから探す</h1>
+      <p class="lead">
+        評価して、問題点を特定し、優先順位をつけて介入する。経営でも同じ考え方が使えます。いまの悩み（症状）に近いものを選ぶと、原因の見立てと、最初に読む講座・使うワークシートが分かります。
+      </p>
+    </header>
+
+    <nav class="aside-box" aria-label="悩みの一覧" style="max-width: var(--measure)">
+      <h2>悩みの一覧</h2>
+      <ul class="symptom-index">
+        {SYMPTOMS.map((s) => <li><a href={`#${s.id}`}>{s.title}</a></li>)}
+      </ul>
+    </nav>
+
+    <div class="measure">
+      {
+        SYMPTOMS.map((s) => (
+          <section class="section symptom" id={s.id}>
+            <h2>{s.title}</h2>
+            <div class="chips">
+              <PhaseBadge phase={s.phase} link withName />
+              {s.loops.map((l) => (
+                <LoopChip loop={l} />
+              ))}
+            </div>
+            <dl class="meta-table">
+              <dt>よくある状態</dt>
+              <dd>{s.signs}</dd>
+              <dt>見立て</dt>
+              <dd>{s.cause}</dd>
+              <dt>処方</dt>
+              <dd>
+                <strong>{s.prescription}</strong>
+              </dd>
+              <dt>読む・使う</dt>
+              <dd>
+                <ul style="margin:0; padding-left: 1.1rem">
+                  {lessonsByNos(lessons, s.lessons).map((l) => (
+                    <li>
+                      <a href={lessonHref(l)}>
+                        講座{l.data.no} {l.data.title}
+                      </a>
+                    </li>
+                  ))}
+                  {s.worksheets.map((id) => (
+                    <li>
+                      <a href={`/worksheets/${id}/`}>ワークシート：{WORKSHEET_BY_ID[id]?.title}</a>
+                    </li>
+                  ))}
+                  {s.links?.map((l) => (
+                    <li>
+                      <a href={l.href}>{l.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </dl>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</Base>
+<style>
+  .symptom-index {
+    columns: 2 16rem;
+    column-gap: 2rem;
+  }
+  .symptom {
+    margin: 2.2rem 0;
+  }
+  .symptom h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+</style>

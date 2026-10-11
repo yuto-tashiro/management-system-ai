@@ -1,0 +1,127 @@
+---
+import SoronRef from '../../components/SoronRef.astro';
+import Article from '../../layouts/Article.astro';
+import LessonCard from '../../components/LessonCard.astro';
+import BookList from '../../components/BookList.astro';
+import PhaseBadge from '../../components/PhaseBadge.astro';
+import { LOOPS, type Loop } from '../../data/loops';
+import { SYMPTOMS } from '../../data/symptoms';
+import { CASES } from '../../data/cases';
+import { LOOP_NAMES } from '../../data/taxonomy';
+import { getLessons, lessonsByLoop } from '../../lib/content';
+
+export function getStaticPaths() {
+  return LOOPS.map((loop, i) => ({
+    params: { loop: loop.id },
+    props: { loop, prev: LOOPS[i - 1], next: LOOPS[i + 1] },
+  }));
+}
+
+interface Props {
+  loop: Loop;
+  prev?: Loop;
+  next?: Loop;
+}
+const { loop, prev, next } = Astro.props;
+const name = LOOP_NAMES[loop.id];
+const lessons = lessonsByLoop(await getLessons(), loop.id);
+const symptoms = SYMPTOMS.filter((s) => s.loops.includes(loop.id));
+const cases = CASES.filter((c) => c.loops.includes(loop.id));
+const headings = [
+  { depth: 2, slug: 'ideas', text: '中核となる考え方' },
+  { depth: 2, slug: 'practice', text: '実践' },
+  { depth: 2, slug: 'ai', text: 'AIとの協働' },
+  { depth: 2, slug: 'symptom', text: 'このループから入るとき' },
+  { depth: 2, slug: 'lessons', text: '関連する講座' },
+  { depth: 2, slug: 'books', text: '文献' },
+];
+---
+
+<Article
+  title={`${name.en}｜${loop.question}`}
+  description={loop.summary}
+  kicker={`経営ループ ${loop.order}／8｜${name.ja}`}
+  lead={loop.summary}
+  crumbs={[{ href: '/loops/', label: '8つの経営ループ' }, { label: name.en }]}
+  headings={headings}
+>
+  <Fragment slot="head">
+    <dl class="meta-table" style="margin-top:1.2rem">
+      <dt>理論的背景</dt>
+      <dd>{loop.theory}</dd>
+      <dt>主に効くフェーズ</dt>
+      <dd>{loop.phases.map((p) => <><PhaseBadge phase={p} link withName />{' '}</>)}</dd>
+      <dt>総論との対応</dt>
+      <dd><SoronRef chapters={[loop.soronChapter]} /></dd>
+    </dl>
+  </Fragment>
+
+  <div class="prose">
+    <h2 id="ideas">中核となる考え方</h2>
+    {
+      loop.keyIdeas.map((k) => (
+        <>
+          <h3>{k.title}</h3>
+          <p>{k.body}</p>
+        </>
+      ))
+    }
+
+    <h2 id="practice">実践</h2>
+    <ol>{loop.practices.map((p) => <li>{p}</li>)}</ol>
+
+    <h2 id="ai">AIとの協働</h2>
+    <p>{loop.ai}</p>
+
+    <h2 id="symptom">このループから入るとき</h2>
+    <div class="callout">
+      <div class="callout-title">こんな症状があれば</div>
+      <p>{loop.symptom}</p>
+    </div>
+    <div class="callout note">
+      <div class="callout-title">診断でこのループが最も低かったときの最初の一手</div>
+      <p>{loop.firstMove}</p>
+    </div>
+    {
+      symptoms.length > 0 && (
+        <p>
+          関連する悩み：
+          {symptoms.map((s, i) => (
+            <>
+              {i > 0 && '／'}
+              <a href={`/symptoms/#${s.id}`}>{s.title}</a>
+            </>
+          ))}
+        </p>
+      )
+    }
+    {
+      cases.length > 0 && (
+        <p>
+          関連するケース：
+          {cases.map((c, i) => (
+            <>
+              {i > 0 && '／'}
+              <a href={`/cases/#${c.id}`}>{c.title}</a>
+            </>
+          ))}
+        </p>
+      )
+    }
+  </div>
+
+  <section class="section">
+    <h2 id="lessons">関連する講座</h2>
+    {lessons.length > 0 ? <div class="grid">{lessons.map((l) => <LessonCard lesson={l} />)}</div> : <p class="hint">このループを主に扱う講座は準備中です。</p>}
+  </section>
+
+  <section class="section measure">
+    <h2 id="books">文献</h2>
+    <BookList ids={loop.books} />
+  </section>
+
+  <nav class="pager" aria-label="前後のループ">
+    {prev ? <a href={`/loops/${prev.id}/`}><span>← {prev.order}. {LOOP_NAMES[prev.id].en}</span>{prev.question}</a> : <span />}
+    {next && <a href={`/loops/${next.id}/`} style="text-align:right"><span>{next.order}. {LOOP_NAMES[next.id].en} →</span>{next.question}</a>}
+  </nav>
+</Article>

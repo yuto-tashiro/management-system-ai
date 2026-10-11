@@ -1,0 +1,11 @@
+---
+interface Props {
+  size?: number;
+}
+const { size = 28 } = Astro.props;
+---
+<svg class="brand-mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+  <circle cx="7" cy="21" r="3" fill="var(--p01)"></circle>
+  <circle cx="15" cy="18.5" r="4.6" fill="var(--p110)"></circle>
+  <circle cx="24.5" cy="14.5" r="6.5" fill="var(--p10100)"></circle>
+</svg>

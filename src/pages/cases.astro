@@ -1,0 +1,99 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PhaseBadge from '../components/PhaseBadge.astro';
+import LoopChip from '../components/LoopChip.astro';
+import { CASES, CASE_KIND_LABEL } from '../data/cases';
+---
+
+<Base title="ケース" description="伸びた案件と止まった案件、やめた構想、アプリ開発、認定制度づくりなど、マイクロ法人経営の実例（要旨）と説明用の仮例。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: 'ケース' }]} />
+      <span class="kicker">CASES</span>
+      <h1>ケース</h1>
+      <p class="lead">
+        抽象的な理論だけでは実践しにくいので、うまくいった話だけでなく、止まった事業、やめた構想も載せています。「実例」は筆者（株式会社HILUCO代表）の経験の要旨で、クライアントは守秘のため構造のみを記しています。「仮例」は説明用に作成したもので、実績ではありません。
+      </p>
+    </header>
+
+    <div class="measure">
+      <nav class="aside-box" aria-label="ケースの一覧">
+        <h2>ケースの一覧</h2>
+        <ul>
+          {CASES.map((c) => <li><a href={`#${c.id}`}>{c.title}</a> <span class="hint">（{c.kind === 'real' ? '実例' : '仮例'}）</span></li>)}
+        </ul>
+      </nav>
+
+      {
+        CASES.map((c) => (
+          <article class="section case" id={c.id}>
+            <span class={`case-kind ${c.kind}`}>{CASE_KIND_LABEL[c.kind]}</span>
+            <h2>{c.title}</h2>
+            <div class="chips">
+              <PhaseBadge phase={c.phase} link withName />
+              {c.loops.map((l) => (
+                <LoopChip loop={l} />
+              ))}
+            </div>
+            <dl class="meta-table">
+              <dt>状況</dt>
+              <dd>{c.situation}</dd>
+              <dt>したこと</dt>
+              <dd>{c.action}</dd>
+              <dt>学び</dt>
+              <dd>{c.learning}</dd>
+              {c.caution && (
+                <>
+                  <dt>注意</dt>
+                  <dd>{c.caution}</dd>
+                </>
+              )}
+            </dl>
+            {c.links && (
+              <p class="hint" style="margin-top:0.6rem">
+                関連：
+                {c.links.map((l, i) => (
+                  <>
+                    {i > 0 && '／'}
+                    <a href={l.href}>{l.label}</a>
+                  </>
+                ))}
+              </p>
+            )}
+          </article>
+        ))
+      }
+
+      <section class="section">
+        <h2>ケースの掲載方針</h2>
+        <ul>
+          <li>実例・匿名化事例・仮例を必ず区別して表示します。仮例やAIの生成例を実績として扱いません。</li>
+          <li>実績の数値を創作しません。クライアントの社名・個人を特定できる情報は掲載しません。</li>
+          <li>新しい実例は、匿名化・公開の可否・検証状態を個別に確認してから追加します。</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</Base>
+<style>
+  .case h2 {
+    margin-top: 0.3rem;
+    font-size: 1.25rem;
+  }
+  .case-kind {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.1rem 0.6rem;
+    border-radius: 4px;
+  }
+  .case-kind.real {
+    color: var(--ev-verified);
+    background: var(--ev-verified-bg);
+  }
+  .case-kind.fictional {
+    color: var(--ev-hypothesis);
+    background: var(--ev-hypothesis-bg);
+  }
+</style>

@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getThemes } from '../../lib/content';
+
+const themes = await getThemes();
+---
+
+<Base title="横断テーマ" description="すべてのフェーズを貫くテーマ：雇わずに組む、ヘルスケア固有の論点、AIとの協働、事業エンジンと収益、お金・契約・リスク。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '横断テーマ' }]} />
+      <span class="kicker">THEMES</span>
+      <h1>横断テーマ</h1>
+      <p class="lead">3つのフェーズすべてを支えるテーマです。どのフェーズにいても、必要になったときに読んでください。</p>
+    </header>
+    <div class="grid-2">
+      {
+        themes.map((t) => (
+          <a class="card" href={`/themes/${t.id}/`}>
+            <span class="num">{t.data.kicker}</span>
+            <h3>{t.data.title}</h3>
+            <p>{t.data.summary}</p>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</Base>

@@ -1,0 +1,146 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+---
+
+<Base title="サイト内検索" description="講座、フェーズ、経営ループ、ワークシート、用語、文献をまとめて検索。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: '検索' }]} />
+      <span class="kicker">SEARCH</span>
+      <h1>サイト内検索</h1>
+      <p class="lead">講座・フェーズ・経営ループ・ワークシート・悩み・ケース・用語・文献をまとめて検索します。スペースで区切ると、すべての語を含むものに絞り込みます。</p>
+    </header>
+    <div class="measure">
+      <form class="search-box" role="search" id="search-form">
+        <label for="q" class="visually-hidden">検索語</label>
+        <input id="q" name="q" type="search" placeholder="例：許容損失、RE-AIM、パートナー、薬機法" autocomplete="off" />
+        <button class="btn btn-primary" type="submit">検索</button>
+      </form>
+      <p class="count-line" id="search-status" aria-live="polite"></p>
+      <ul class="search-results" id="search-results"></ul>
+      <noscript><p>検索にはJavaScriptが必要です。<a href="/lessons/">講座一覧</a>や<a href="/glossary/">用語集</a>から探してください。</p></noscript>
+    </div>
+  </div>
+</Base>
+
+<script>
+  type Doc = { t: string; u: string; k: string; s: string; b: string };
+  const input = document.getElementById('q') as HTMLInputElement;
+  const form = document.getElementById('search-form') as HTMLFormElement;
+  const status = document.getElementById('search-status') as HTMLElement;
+  const results = document.getElementById('search-results') as HTMLUListElement;
+  let docs: Doc[] | null = null;
+
+  const norm = (s: string) => s.normalize('NFKC').toLowerCase();
+
+  async function load(): Promise<Doc[]> {
+    if (docs) return docs;
+    const res = await fetch('/search-index.json');
+    docs = (await res.json()) as Doc[];
+    return docs;
+  }
+
+  function highlight(text: string, words: string[]): DocumentFragment {
+    const frag = document.createDocumentFragment();
+    const lower = norm(text);
+    let i = 0;
+    while (i < text.length) {
+      let best = -1;
+      let len = 0;
+      for (const w of words) {
+        const at = lower.indexOf(w, i);
+        if (at !== -1 && (best === -1 || at < best)) {
+          best = at;
+          len = w.length;
+        }
+      }
+      if (best === -1) {
+        frag.append(text.slice(i));
+        break;
+      }
+      frag.append(text.slice(i, best));
+      const m = document.createElement('mark');
+      m.textContent = text.slice(best, best + len);
+      frag.append(m);
+      i = best + len;
+    }
+    return frag;
+  }
+
+  function snippet(d: Doc, words: string[]): string {
+    const hay = `${d.s} ${d.b}`;
+    const lower = norm(hay);
+    const at = Math.min(...words.map((w) => lower.indexOf(w)).filter((n) => n >= 0));
+    if (!Number.isFinite(at) || at < 60) return hay.slice(0, 140) + (hay.length > 140 ? '…' : '');
+    return '…' + hay.slice(at - 40, at + 100) + '…';
+  }
+
+  async function run(q: string) {
+    const words = norm(q).split(/\s+/).filter(Boolean);
+    results.replaceChildren();
+    if (words.length === 0) {
+      status.textContent = '';
+      return;
+    }
+    status.textContent = '検索しています…';
+    const all = await load();
+    const scored = all
+      .map((d) => {
+        const t = norm(d.t);
+        const s = norm(d.s);
+        const b = norm(d.b);
+        let score = 0;
+        for (const w of words) {
+          const inT = t.includes(w);
+          const inS = s.includes(w);
+          const inB = b.includes(w);
+          if (!inT && !inS && !inB) return { d, score: 0 };
+          score += (inT ? 6 : 0) + (inS ? 2 : 0) + (inB ? 1 : 0);
+        }
+        return { d, score };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 60);
+
+    status.textContent = scored.length ? `${scored.length}件見つかりました` : '見つかりませんでした。別の言葉や、短い言葉で試してください。';
+    scored.forEach(({ d }) => {
+      const li = document.createElement('li');
+      const type = document.createElement('span');
+      type.className = 'type';
+      type.textContent = d.k;
+      const a = document.createElement('a');
+      a.href = d.u;
+      a.append(highlight(d.t, words));
+      const p = document.createElement('p');
+      p.append(highlight(snippet(d, words), words));
+      li.append(type, a, p);
+      results.append(li);
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = input.value.trim();
+    const url = new URL(location.href);
+    if (q) url.searchParams.set('q', q);
+    else url.searchParams.delete('q');
+    history.replaceState(null, '', url);
+    run(q);
+  });
+
+  let timer: number | undefined;
+  input.addEventListener('input', () => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => run(input.value.trim()), 200);
+  });
+
+  const initial = new URLSearchParams(location.search).get('q');
+  if (initial) {
+    input.value = initial;
+    run(initial);
+  } else {
+    input.focus();
+  }
+</script>

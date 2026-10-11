@@ -1,0 +1,133 @@
+---
+import SoronRef from '../../components/SoronRef.astro';
+import { getCollection, render } from 'astro:content';
+import Article from '../../layouts/Article.astro';
+import LessonCard from '../../components/LessonCard.astro';
+import WorksheetList from '../../components/WorksheetList.astro';
+import BookList from '../../components/BookList.astro';
+import Checklist from '../../components/Checklist.astro';
+import { getLessons, lessonsByPhase } from '../../lib/content';
+import { LOOP_BY_ID } from '../../data/loops';
+import { CASES, CASE_KIND_LABEL } from '../../data/cases';
+import { LOOP_NAMES, PHASE_IDS, PHASES, type PhaseId } from '../../data/taxonomy';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('phases');
+  return entries.map((entry) => ({ params: { phase: entry.data.phase }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const d = entry.data;
+const phaseId = d.phase as PhaseId;
+const phase = PHASES[phaseId];
+const { Content, headings } = await render(entry);
+const lessons = lessonsByPhase(await getLessons(), phaseId);
+const cases = CASES.filter((c) => c.phase === phaseId);
+const others = PHASE_IDS.filter((p) => p !== phaseId);
+---
+
+<Article
+  title={d.title}
+  description={d.summary}
+  kicker={`フェーズ別ガイド｜${phase.label} ${phase.name}`}
+  lead={d.summary}
+  crumbs={[{ href: '/phases/', label: 'フェーズ別ガイド' }, { label: phase.label }]}
+  headings={headings}
+  phaseClass={`phase-${phaseId}`}
+>
+  <Fragment slot="head">
+    <dl class="meta-table" style="margin-top: 1.2rem; border-left: 4px solid var(--phase)">
+      <dt>到達点</dt>
+      <dd>{phase.reach}</dd>
+      <dt>中核の問い</dt>
+      <dd><strong>{phase.question}</strong></dd>
+      <dt>学習者がつくるもの</dt>
+      <dd>{phase.outputs}</dd>
+      <dt>重心となるループ</dt>
+      <dd>
+        <span class="chips" style="margin:0">
+          {d.loops.map((l) => <a class="chip chip-loop" href={`/loops/${l}/`}>{LOOP_NAMES[l].en} <span class="ja">{LOOP_NAMES[l].ja}</span></a>)}
+        </span>
+      </dd>
+    </dl>
+  </Fragment>
+
+  <div class="prose">
+    <Content />
+  </div>
+
+  <section class="section">
+    <h2 id="lessons">このフェーズの講座</h2>
+    <div class="grid">{lessons.map((l) => <LessonCard lesson={l} />)}</div>
+  </section>
+
+  <section class="section">
+    <h2 id="loops">重心となる経営ループ</h2>
+    <div class="grid">
+      {
+        d.loops.map((l) => (
+          <a class="card" href={`/loops/${l}/`}>
+            <span class="num">{LOOP_NAMES[l].en}｜{LOOP_NAMES[l].ja}</span>
+            <h3>{LOOP_BY_ID[l].question}</h3>
+            <p>{LOOP_BY_ID[l].theory}</p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 id="worksheets">ワークシート</h2>
+    <WorksheetList ids={d.worksheets} />
+  </section>
+
+  {
+    cases.length > 0 && (
+      <section class="section measure">
+        <h2 id="cases">ケース</h2>
+        <ul>
+          {cases.map((c) => (
+            <li>
+              <a href={`/cases/#${c.id}`}>{c.title}</a> <span class="hint">（{CASE_KIND_LABEL[c.kind]}）</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <section class="section measure">
+    <h2 id="books">次に読む文献</h2>
+    <BookList ids={d.books} />
+  </section>
+
+  <section class="section measure">
+    <h2 id="graduation">卒業条件のチェックリスト（目安）</h2>
+    <p class="hint">
+      フェーズの判定は会社全体ではなく、事業ごとに行います。一直線に進むものではなく、新しい事業を始めるたびに0→1に戻ります。
+    </p>
+    <Checklist storageKey={`graduation-${phaseId}`} items={phase.graduation} />
+  </section>
+
+  <nav class="pager" aria-label="ほかのフェーズ">
+    {
+      others.map((p) => (
+        <a href={`/phases/${p}/`} class={`phase-${p}`} style="border-left: 4px solid var(--phase)">
+          <span>ほかのフェーズ</span>
+          {PHASES[p].label} {PHASES[p].name}：{PHASES[p].reach}
+        </a>
+      ))
+    }
+  </nav>
+
+  <Fragment slot="aside">
+    <div class="aside-box">
+      <h2>総論との対応</h2>
+      <p style="margin:0"><SoronRef chapters={d.soronChapters} /></p>
+    </div>
+    <div class="aside-box">
+      <h2>現在地がわからないときは</h2>
+      <p style="margin:0 0 0.4rem"><a href="/diagnosis/">フェーズ・ループ診断</a>で、事業ごとのフェーズと最も弱いループを確かめられます。</p>
+    </div>
+  </Fragment>
+</Article>

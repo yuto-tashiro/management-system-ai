@@ -1,0 +1,21 @@
+---
+import { PHASES, type PhaseId } from '../data/taxonomy';
+
+interface Props {
+  phase: PhaseId;
+  link?: boolean;
+  withName?: boolean;
+}
+const { phase, link = false, withName = false } = Astro.props;
+const p = PHASES[phase];
+const text = withName ? `${p.label} ${p.name}` : p.label;
+---
+{
+  link ? (
+    <a class={`phase-badge phase-${phase}`} href={`/phases/${phase}/`}>
+      {text}
+    </a>
+  ) : (
+    <span class={`phase-badge phase-${phase}`}>{text}</span>
+  )
+}

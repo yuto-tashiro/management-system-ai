@@ -1,0 +1,21 @@
+---
+import { WORKSHEET_BY_ID } from '../data/worksheets';
+
+interface Props {
+  ids: string[];
+}
+const sheets = Astro.props.ids.map((id) => WORKSHEET_BY_ID[id]).filter(Boolean);
+---
+{
+  sheets.length > 0 && (
+    <div class="grid">
+      {sheets.map((w) => (
+        <a class="card" href={`/worksheets/${w.id}/`}>
+          <span class="kicker" style="margin:0">ワークシート</span>
+          <h3>{w.title}</h3>
+          <p>{w.purpose}</p>
+        </a>
+      ))}
+    </div>
+  )
+}

@@ -1,0 +1,103 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+import { getLessons, lessonHref, lessonsByPhase } from '../../lib/content';
+import { PHASE_IDS, PHASES } from '../../data/taxonomy';
+
+const entries = await getCollection('phases');
+const lessons = await getLessons();
+const summaryOf = (p: string) => entries.find((e) => e.data.phase === p)?.data.summary ?? '';
+---
+
+<Base title="フェーズ別ガイド" description="0→1・1→10・10→100の3つのフェーズごとに、中核の問い、実践ステップ、つまずき、卒業条件をまとめたガイド。">
+  <div class="container">
+    <header class="page-head">
+      <Breadcrumbs items={[{ label: 'フェーズ別ガイド' }]} />
+      <span class="kicker">PHASES</span>
+      <h1>フェーズ別ガイド</h1>
+      <p class="lead">
+        事業は「手持ちから利益をつくる（0→1）」「伸びるものを見極めて体系化する（1→10）」「仕組みと仲間で広げる（10→100）」の3段階で考えます。売上や人数ではなく、顧客課題の不確実性と提供方法の再現性で判定する、学習のための目安です。
+      </p>
+    </header>
+
+    <div class="callout note">
+      <div class="callout-title">フェーズは「事業ごと」に判定します</div>
+      <p>
+        各フェーズは卒業条件を満たすと次へ進みますが、一直線ではありません。新しい事業を始めるたびに0→1に戻り、既存事業は1→10や10→100を進む――複数のフェーズが同時に走るのが普通です。現実の企業が同じ順序・時間で成長するという法則ではありません。
+      </p>
+    </div>
+
+    <div class="phase-map">
+      {
+        PHASE_IDS.map((p) => (
+          <a class={`phase-col phase-${p}`} href={`/phases/${p}/`}>
+            <span class="phase-label">{PHASES[p].label}</span>
+            <span class="phase-name">{PHASES[p].name}</span>
+            <p>
+              <strong>{PHASES[p].reach}</strong>
+            </p>
+            <p>{summaryOf(p)}</p>
+          </a>
+        ))
+      }
+    </div>
+
+    <section class="section">
+      <h2>3つのフェーズの比較</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">フェーズ</th>
+              <th scope="col">主な問い</th>
+              <th scope="col">学習者がつくるもの</th>
+              <th scope="col">次へ進む目安</th>
+              <th scope="col">講座</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              PHASE_IDS.map((p) => (
+                <tr>
+                  <th scope="row">
+                    <a class={`phase-badge phase-${p}`} href={`/phases/${p}/`}>
+                      {PHASES[p].label} {PHASES[p].name}
+                    </a>
+                  </th>
+                  <td style="min-width: 14rem">{PHASES[p].question}</td>
+                  <td style="min-width: 12rem">{PHASES[p].outputs}</td>
+                  <td style="min-width: 14rem">
+                    <ul style="margin:0; padding-left: 1.1rem">
+                      {PHASES[p].graduation.map((g) => (
+                        <li>{g}</li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td style="min-width: 10rem">
+                    {lessonsByPhase(lessons, p).map((l) => (
+                      <div>
+                        <a href={lessonHref(l)}>
+                          {l.data.no} {l.data.title}
+                        </a>
+                      </div>
+                    ))}
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>3つのフェーズを支える横断テーマ</h2>
+      <div class="grid">
+        <a class="card" href="/themes/partnership/"><h3>雇わずに、横のパートナーと組む</h3><p>フェーズごとに、パートナー網に求めるものが変わります。</p></a>
+        <a class="card" href="/themes/healthcare/"><h3>ヘルスケア固有の論点</h3><p>根拠・規制・使う人と払う人・データと同意。</p></a>
+        <a class="card" href="/themes/ai/"><h3>AIとの協働</h3><p>何を任せ、何を人間に残し、何を会社に残すか。</p></a>
+      </div>
+    </section>
+  </div>
+</Base>

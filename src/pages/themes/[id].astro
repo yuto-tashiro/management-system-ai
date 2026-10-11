@@ -1,0 +1,91 @@
+---
+import SoronRef from '../../components/SoronRef.astro';
+import { render } from 'astro:content';
+import Article from '../../layouts/Article.astro';
+import LoopChip from '../../components/LoopChip.astro';
+import SourceList from '../../components/SourceList.astro';
+import WorksheetList from '../../components/WorksheetList.astro';
+import BookList from '../../components/BookList.astro';
+import { getThemes, type ThemeEntry } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const themes = await getThemes();
+  return themes.map((theme, i) => ({
+    params: { id: theme.id },
+    props: { theme, prev: themes[i - 1], next: themes[i + 1] },
+  }));
+}
+
+interface Props {
+  theme: ThemeEntry;
+  prev?: ThemeEntry;
+  next?: ThemeEntry;
+}
+const { theme, prev, next } = Astro.props;
+const d = theme.data;
+const { Content, headings } = await render(theme);
+---
+
+<Article
+  title={d.title}
+  description={d.summary}
+  kicker={d.kicker}
+  lead={d.summary}
+  crumbs={[{ href: '/themes/', label: '横断テーマ' }, { label: d.title }]}
+  headings={headings}
+>
+  <Fragment slot="head">
+    {d.loops.length > 0 && <div class="chips" style="margin-top:1rem">{d.loops.map((l) => <LoopChip loop={l} />)}</div>}
+  </Fragment>
+
+  <div class="prose">
+    <Content />
+  </div>
+
+  {
+    d.worksheets.length > 0 && (
+      <section class="section">
+        <h2 id="worksheets">ワークシート</h2>
+        <WorksheetList ids={d.worksheets} />
+      </section>
+    )
+  }
+
+  {
+    d.sources.length > 0 && (
+      <section class="section measure">
+        <h2 id="sources">根拠と出典</h2>
+        <SourceList sources={d.sources} />
+      </section>
+    )
+  }
+
+  {
+    d.books.length > 0 && (
+      <section class="section measure">
+        <h2 id="books">文献</h2>
+        <BookList ids={d.books} />
+      </section>
+    )
+  }
+
+  <nav class="pager" aria-label="前後のテーマ">
+    {prev ? <a href={`/themes/${prev.id}/`}><span>← 前のテーマ</span>{prev.data.title}</a> : <span />}
+    {next && <a href={`/themes/${next.id}/`} style="text-align:right"><span>次のテーマ →</span>{next.data.title}</a>}
+  </nav>
+
+  <Fragment slot="aside">
+    {
+      d.soronChapters.length > 0 && (
+        <div class="aside-box">
+          <h2>総論との対応</h2>
+          <p style="margin:0"><SoronRef chapters={d.soronChapters} /></p>
+        </div>
+      )
+    }
+    <div class="aside-box">
+      <h2>最終更新</h2>
+      <p style="margin:0">{d.updated}</p>
+    </div>
+  </Fragment>
+</Article>
