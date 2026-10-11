@@ -248,7 +248,7 @@ export const LOOPS: Loop[] = [
     symptom: '今は良いが将来が不安。紹介や指名が生まれない。何をしている会社か伝わらない。',
     firstMove: '発信の名義を整理し、一次体験からケースを1つ書く。',
     soronChapter: 8,
-    books: ['branding-science', 'give-and-take'],
+    books: ['marketing-science', 'give-and-take'],
   },
   {
     id: 'systemize',
