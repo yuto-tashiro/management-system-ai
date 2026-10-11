@@ -3,7 +3,7 @@
 ヘルスケア・ウェルビーイング領域でマイクロ法人を営む・目指す専門職のための学習サイトです。0→1・1→10・10→100のフェーズ別に、好きなタイミングで好きなところから学べます。
 
 - 運営：株式会社HILUCO
-- 公開先（予定）：`https://learn.hiluco.net`（Cloudflare Pages／HILUCOアカウント）
+- 公開先（予定）：`https://biz.management.hiluco.net`（Cloudflare Pages／HILUCOアカウント）
 - 技術：[Astro](https://astro.build/) 7 による静的サイト（サーバー・データベースなし）
 
 ## サイトの構成
@@ -68,19 +68,20 @@ GitHub連携のCloudflare Pagesを使います。一度設定すれば、以降�
 1. Cloudflareダッシュボード（HILUCOアカウント）→ **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
 2. GitHubで `yuto-tashiro/management-system-ai` を選択
 3. ビルド設定
-   - Production branch：`main`（このブランチをmainにマージしてから。先に試すならこの作業ブランチでも可）
+   - Production branch：`main`
    - Framework preset：`Astro`
    - Build command：`npm run build`
    - Build output directory：`dist`
    - Node.jsのバージョンは `.nvmrc`（22）で指定済み。読み込まれない場合は環境変数 `NODE_VERSION=22` を追加
 4. **Save and Deploy** → `*.pages.dev` のURLで表示を確認
-5. プロジェクトの **Custom domains** → **Set up a custom domain** → `learn.hiluco.net`（任意のサブドメイン）を入力
+5. プロジェクトの **Custom domains** → **Set up a custom domain** → `biz.management.hiluco.net` を入力
    - hiluco.net が同じCloudflareアカウントで管理されていれば、DNS（CNAME）は自動で追加されます
-6. サブドメインを `learn` 以外にした場合は、`src/config.ts` の `url` も同じ値に変更してコミット
+   - 2階層のサブドメインのため、DNSを手作業で追加するのではなく、必ずPagesの「Custom domains」から追加してください（証明書がこのホスト名用に発行されます。手作業のプロキシ設定だと、無料の証明書は `*.hiluco.net` までしか対応しません）
+6. サブドメインを変える場合は、`src/config.ts` の `url` も同じ値に変更してコミット
 
 ### 公開前レビューの間、閲覧者を限定したい場合
 
-Cloudflare **Zero Trust → Access → Applications** で `learn.hiluco.net` を対象にしたアプリケーションを作り、許可するメールアドレス（例：社内・レビュー担当）を指定すると、ログインした人だけが閲覧できます。
+Cloudflare **Zero Trust → Access → Applications** で `biz.management.hiluco.net` を対象にしたアプリケーションを作り、許可するメールアドレス（例：社内・レビュー担当）を指定すると、ログインした人だけが閲覧できます。
 
 ### 検索エンジンへの掲載
 
@@ -101,6 +102,5 @@ npx wrangler pages deploy dist --project-name=<Pagesのプロジェクト名>
 
 - [ ] 「書誌確認中」の文献（『ブランディングの科学 新市場開拓篇』の刊行年・訳者）を版元で確認
 - [ ] `/about/` の責任者欄（事実確認者・健康領域のレビュー担当・利益相反）を記入
-- [ ] サブドメイン名の確定（`src/config.ts` の `url`）
 - [ ] 総論のnote URLがあれば `src/config.ts` の `soronUrl` に設定
 - [ ] `/about/` の公開前チェックリストを完了し、`indexable: true` に変更

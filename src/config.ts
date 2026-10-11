@@ -6,8 +6,8 @@ export const SITE = {
   tagline: 'ヘルスケア・ウェルビーイング領域で、小さく強い会社をつくる',
   description:
     'ヘルスケア・ウェルビーイング領域でマイクロ法人を営む・目指す専門職のための学習サイト。0→1・1→10・10→100のフェーズ別に、好きなタイミングで好きなところから学べます。',
-  /** Cloudflare で割り当てる hiluco.net のサブドメイン。決まったら書き換える */
-  url: 'https://learn.hiluco.net',
+  /** Cloudflare Pages の Custom domains に設定するホスト名 */
+  url: 'https://biz.management.hiluco.net',
   /** 運営 */
   publisher: '株式会社HILUCO',
   /**
