@@ -3,7 +3,7 @@
 ヘルスケア・ウェルビーイング領域でマイクロ法人を営む・目指す専門職のための学習サイトです。0→1・1→10・10→100のフェーズ別に、好きなタイミングで好きなところから学べます。
 
 - 運営：株式会社HILUCO
-- 公開先（予定）：`https://biz.management.hiluco.net`（Cloudflare Pages／HILUCOアカウント）
+- 公開先（予定）：`https://biz.management.hiluco.net`（Cloudflare Workers／HILUCOアカウント）
 - 技術：[Astro](https://astro.build/) 7 による静的サイト（サーバー・データベースなし）
 
 ## サイトの構成
@@ -48,7 +48,7 @@
 
 講座ファイルの先頭（frontmatter）で、フェーズ・ループ・根拠（`sources`）・ワークシート・次に読む講座を指定します。`sources` の `label` は `guideline`（公的指針）／`research`（研究知見）／`book`（実務書の枠組み）／`hypothesis`（HILUCOの実務仮説）／`verified`（HILUCOの検証済み手順）のいずれかです。
 
-GitHubのWeb画面でMarkdownを編集してコミットするだけでも、Cloudflareが自動で再ビルド・公開します。
+更新後は `npm run deploy` で再ビルド・公開できます。GitHub連携の自動デプロイは未設定です。
 
 ## ローカルで確認する
 
@@ -63,21 +63,23 @@ npm run preview  # ビルド結果を確認
 
 ## Cloudflare（HILUCOアカウント）へのデプロイ
 
-GitHub連携のCloudflare Pagesを使います。一度設定すれば、以降はブランチへのpushで自動デプロイされます。
+Cloudflare Workers の Static Assets で公開しています。設定は `wrangler.jsonc` に保存しています。
 
-1. Cloudflareダッシュボード（HILUCOアカウント）→ **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-2. GitHubで `yuto-tashiro/management-system-ai` を選択
-3. ビルド設定
-   - Production branch：`main`
-   - Framework preset：`Astro`
-   - Build command：`npm run build`
-   - Build output directory：`dist`
-   - Node.jsのバージョンは `.nvmrc`（22）で指定済み。読み込まれない場合は環境変数 `NODE_VERSION=22` を追加
-4. **Save and Deploy** → `*.pages.dev` のURLで表示を確認
-5. プロジェクトの **Custom domains** → **Set up a custom domain** → `biz.management.hiluco.net` を入力
-   - hiluco.net が同じCloudflareアカウントで管理されていれば、DNS（CNAME）は自動で追加されます
-   - 2階層のサブドメインのため、DNSを手作業で追加するのではなく、必ずPagesの「Custom domains」から追加してください（証明書がこのホスト名用に発行されます。手作業のプロキシ設定だと、無料の証明書は `*.hiluco.net` までしか対応しません）
-6. サブドメインを変える場合は、`src/config.ts` の `url` も同じ値に変更してコミット
+- Worker名：`management-system-ai`
+- アカウント：HILUCO
+- 本番URL：https://biz.management.hiluco.net
+- Workers URL：https://management-system-ai.hiluco.workers.dev
+- 配信ディレクトリ：`dist`（Astro静的ビルド）
+- カスタムドメインのDNSと証明書はWorkersが管理します。Pages用CNAMEは不要です。
+
+```bash
+npm ci
+npx wrangler login
+npm run deploy
+```
+
+`npm run deploy` は型チェック・本番ビルド後にWorkersへデプロイします。
+GitHub更新時の自動デプロイは未設定です。Workers Buildsを利用する場合は本番ブランチ `main`、ビルドコマンド `npm run build`、デプロイコマンド `npx wrangler deploy` に設定してください。
 
 ### 公開前レビューの間、閲覧者を限定したい場合
 
@@ -86,13 +88,6 @@ Cloudflare **Zero Trust → Access → Applications** で `biz.management.hiluco
 ### 検索エンジンへの掲載
 
 初期状態では `src/config.ts` の `indexable: false` により、全ページに `noindex` を付け、`robots.txt` でクロールを止めています。`/about/` の公開前チェックリストが終わったら `indexable: true` に変更してください。
-
-### CLIでデプロイする場合（任意）
-
-```bash
-npm run build
-npx wrangler pages deploy dist --project-name=<Pagesのプロジェクト名>
-```
 
 ## セキュリティ
 
