@@ -3,7 +3,7 @@
 HILUCO Methods（https://hiluco.net/）の学習サイトです。ヘルスケア・ウェルビーイング領域の事業チームと専門職が、始める・伸ばす・直す・続けるための考え方を学べます。マイクロ法人経営の実践を土台に、3フェーズと8つの経営ループ、実践ワークを提供します。
 
 - 運営：株式会社HILUCO
-- 公開先（予定）：`https://biz.management.hiluco.net`（Cloudflare Workers／HILUCOアカウント）
+- 公開先（予定）：`https://biz.management.hiluco.net`（Cloudflare Workers／Embodied Eutopiaアカウント）
 - 技術：[Astro](https://astro.build/) 7 による静的サイト（サーバー・データベースなし）
 
 ## サイトの構成
@@ -61,14 +61,14 @@ npm run build    # 型チェック＋本番ビルド（dist/ に出力）
 npm run preview  # ビルド結果を確認
 ```
 
-## Cloudflare（HILUCOアカウント）へのデプロイ
+## Cloudflare（本番ドメインのアカウント）へのデプロイ
 
 Cloudflare Workers の Static Assets で公開しています。設定は `wrangler.jsonc` に保存しています。
 
 - Worker名：`management-system-ai`
-- アカウント：HILUCO
+- Cloudflareアカウント：Embodied Eutopia（`hiluco.net`ゾーンと本番Workerが属するアカウント）
 - 本番URL：https://biz.management.hiluco.net
-- Workers URL：https://management-system-ai.hiluco.workers.dev
+- Workers URL：https://management-system-ai.tashirow-y.workers.dev
 - 配信ディレクトリ：`dist`（Astro静的ビルド）
 - カスタムドメインのDNSと証明書はWorkersが管理します。Pages用CNAMEは不要です。
 
@@ -109,3 +109,5 @@ Cloudflare **Zero Trust → Access → Applications** で `biz.management.hiluco
 - 相談サービスの対象と、開始前から継続・継承まで扱う学習サイトの対象を区別します。
 - 8つの経営ループと事業身体論の7系統・16器官系は、目的の異なる分類として説明します。
 - 既存URLとlocalStorageのキーは維持しています。
+
+本番ドメインのゾーン名（`hiluco.net`）を `wrangler.jsonc` の `routes[].zone_name` に明示しています。運営会社の名称とCloudflareアカウントの表示名は異なります。

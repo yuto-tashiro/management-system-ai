@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "management-system-ai",
-  "account_id": "1b7501794d4009b3fbb8f3de1be99d41",
+  "account_id": "8a5b698ae4fb727ecc4051e0e45d9624",
   "compatibility_date": "2026-10-11",
   "workers_dev": true,
   "assets": {
@@ -12,6 +12,7 @@
   "routes": [
     {
       "pattern": "biz.management.hiluco.net",
+      "zone_name": "hiluco.net",
       "custom_domain": true
     }
   ]
