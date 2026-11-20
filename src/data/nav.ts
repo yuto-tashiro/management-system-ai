@@ -38,7 +38,7 @@ export const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: '手を動かす',
     items: [
-      { href: '/plan-90/', label: '90日でOSをつくる' },
+      { href: '/plan-90/', label: '90日で事業を動かす' },
       { href: '/worksheets/', label: 'ワークシート' },
       { href: '/cases/', label: 'ケース' },
     ],

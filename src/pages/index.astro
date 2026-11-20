@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import JourneyPaths from '../components/JourneyPaths.astro';
 import { getCollection } from 'astro:content';
 import { getLessons, getThemes, lessonHref, lessonsByPhase } from '../lib/content';
 import { SYMPTOMS } from '../data/symptoms';
@@ -17,37 +18,32 @@ const featuredSymptoms = SYMPTOMS.filter((s) => ['unstable-revenue', 'too-busy',
 ---
 
 <Base title="ホーム" description={SITE.description}>
-  <div class="container">
-    <section class="hero">
-      <span class="kicker">HEALTHCARE &amp; WELL-BEING MICRO-CORP</span>
-      <h1>小さく始め、横に組み、<br />仕組みで続く会社をつくる。</h1>
-      <p class="lead">
-        ヘルスケア・ウェルビーイング領域でマイクロ法人を営む・目指す専門職のための学習サイトです。0→1・1→10・10→100のフェーズ別に、必要なときに、必要なところから学べます。
-      </p>
-      <aside class="callout effectuation-intro" aria-labelledby="effectuation-heading">
-        <h2 id="effectuation-heading">エフェクチュエーションとは？</h2>
-        <p>
-          <strong>いま持っている知識・経験・人とのつながりから、できることを始め、協力者と一緒に事業の可能性を育てる考え方です。</strong>
-          先が読みにくいときも、失ってよい時間やお金の範囲を決めて小さく動き、予想外の出来事を次の機会に活かします。
-        </p>
-        <p>
-          たとえば、専門職が自分の得意分野と知人との関係を活かして、小さな勉強会から始める。
-          参加者の声や協力者の提案を受けて、次に取り組むことを一緒に考えます。
-        </p>
-        <p class="hint">
-          <a href="/lessons/02-means-and-affordable-loss/">講座02で詳しく学ぶ</a>
-          · <a href="https://effectuation.org/the-five-principles-of-effectuation">原則の解説（Effectuation.org・英語）</a>
-        </p>
-      </aside>
-      <p class="thesis">
-        エフェクチュエーション的に小さく始め、複数の収入源を持ちながら得意領域を育て、人を雇わずに横のパートナーと助け合い、共同プロジェクトを通じて互いに成長する。
-      </p>
+  <section class="map-hero">
+    <div class="container">
+      <p class="kicker">HILUCO METHODS / KNOWLEDGE</p>
+      <h1>{SITE.name}</h1>
+      <p class="hero-message">{SITE.tagline}。</p>
+      <p class="lead">ヘルスケア・ウェルビーイング領域で、事業を動かすチームと専門職へ。<br class="desktop-break" />いまの段階に合う考え方と、次の一手を見つける学習サイトです。</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="/diagnosis/">現在地を診断する</a>
-        <a class="btn" href="/start/">はじめに：使い方を読む</a>
+        <a class="btn btn-primary" href="/diagnosis/">現在地を確かめる</a>
+        <a class="btn" href="/start/">このマップの使い方</a>
       </div>
-    </section>
-
+      <p class="hero-meta">{lessons.length}の講座 / {LOOPS.length}つの経営ループ / {WORKSHEETS.length}種のワークシート</p>
+      <span class="hero-line" aria-hidden="true"></span>
+    </div>
+  </section>
+  <section class="journey-section" aria-labelledby="journey-title">
+    <div class="container">
+      <div class="section-intro">
+        <span class="kicker">FIND YOUR WAY</span>
+        <h2 id="journey-title">始める。伸ばす。直す。続ける。</h2>
+        <p>人が発達し、鍛え、回復し、歳を重ねるように、事業にも一生があります。<br class="desktop-break" />いま取り組みたいことから、読み始めてください。</p>
+      </div>
+      <JourneyPaths />
+      <p class="journey-note">「直す」はすべての段階にある課題です。3つの成長フェーズと、悩みから探す入口を組み合わせて使えます。</p>
+    </div>
+  </section>
+  <div class="container home-content">
     <section class="section">
       <div class="section-head">
         <h2>好きなところから学ぶ</h2>
@@ -159,6 +155,27 @@ const featuredSymptoms = SYMPTOMS.filter((s) => ['unstable-revenue', 'too-busy',
       </div>
     </section>
 
+    <section class="section methods-connection" aria-labelledby="connection-title">
+      <span class="kicker">HILUCO METHODS</span>
+      <h2 id="connection-title">学びを、事業の次の一手へ。</h2>
+      <p>このマップは、マイクロ法人経営の実践を土台に、少人数の事業チームが自分たちで考え、試し、振り返るための教材です。</p>
+      <div class="grid-2">
+        <a class="card" href={SITE.clientworkUrl}>
+          <span class="kicker">CONSULTATION</span>
+          <h3>一緒に課題を解く</h3>
+          <p>製品・サービスがあり、これから広げていくチームへ。売上・資金調達・研究をつなぐ支援を紹介します。</p>
+          <span class="connection-link">クライアントワーク</span>
+        </a>
+        <a class="card" href={SITE.researchUrl}>
+          <span class="kicker">RESEARCH</span>
+          <h3>見立ての理論を深める</h3>
+          <p>事業を身体として捉え、構造・機能・病態から不調を考える「事業身体論」。事業を見る観点を深めます。</p>
+          <span class="connection-link">事業身体論</span>
+        </a>
+      </div>
+      <p class="hint">相談・学習・理論研究を、いまの目的に合わせて行き来できます。<a href="/start/#methods">3つのサイトの使い分け</a></p>
+    </section>
+
     <section class="section grid-2">
       <a class="card" href="/library/">
         <span class="kicker" style="margin:0">LIBRARY</span>
@@ -174,15 +191,6 @@ const featuredSymptoms = SYMPTOMS.filter((s) => ['unstable-revenue', 'too-busy',
   </div>
 </Base>
 <style>
-  .effectuation-intro {
-    margin: 1.5rem 0;
-    max-width: 52rem;
-  }
-  .effectuation-intro h2 {
-    font-size: 1.2rem;
-    margin: 0 0 0.65rem;
-  }
-
   .lesson-mini {
     list-style: none;
     padding: 0;

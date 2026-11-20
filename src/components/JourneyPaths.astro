@@ -1,0 +1,14 @@
+---
+import { JOURNEYS } from '../data/journeys';
+---
+<div class="journey-grid">
+  {JOURNEYS.map((j) => (
+    <a class="journey" href={j.href}>
+      <span class="journey-label">{j.label}</span>
+      <h3>{j.title}</h3>
+      <p class="journey-analogy">人でいうと「{j.analogy}」</p>
+      <p>{j.description}</p>
+      <span class="journey-link">{j.title === '直す' ? '悩みから探す' : 'ガイドを読む'}</span>
+    </a>
+  ))}
+</div>

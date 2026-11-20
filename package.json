@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "description": "ヘルスケア・ウェルビーイング領域のマイクロ法人経営を、フェーズ別に好きなところから学べる学習サイト",
+  "description": "ヘルスケア・ウェルビーイング領域の事業チームと専門職のための事業推進マップ",
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
