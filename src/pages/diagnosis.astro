@@ -346,7 +346,7 @@ const payload = {
         el('p', '合計点が低いこと自体は問題ではありません。最も低い項目を一つ選び、次の90日で改善してみてください。', 'hint'),
       );
       const p3 = el('p');
-      p3.append(link('/plan-90/', '90日でOSをつくる'));
+      p3.append(link('/plan-90/', '90日で事業を動かす'));
       loopResult.append(p3);
       if (unanswered > 0) loopResult.append(el('p', `未回答の項目が${unanswered}件あります（0点として計算。履歴には保存していません）。`, 'hint'));
       loopResult.hidden = false;

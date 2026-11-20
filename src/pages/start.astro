@@ -1,21 +1,40 @@
 ---
 import Base from '../layouts/Base.astro';
+import JourneyPaths from '../components/JourneyPaths.astro';
+import { SITE } from '../config';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import { EVIDENCE, EVIDENCE_IDS, PHASES } from '../data/taxonomy';
 ---
 
-<Base title="はじめに：このサイトの使い方" description="ヘルスケア・ウェルビーイング領域のマイクロ法人経営を、フェーズ別に、好きなタイミングで好きなところから学ぶための使い方。">
+<Base title="はじめに：このサイトの使い方" description="事業推進マップの使い方。始める・伸ばす・直す・続ける入口から、3つのフェーズと8つの経営ループを使って学び、実践する。">
   <div class="container">
     <header class="page-head">
       <Breadcrumbs items={[{ label: 'はじめに' }]} />
       <span class="kicker">START HERE</span>
       <h1>はじめに：このサイトの使い方</h1>
       <p class="lead">
-        このサイトは、ヘルスケア・ウェルビーイング領域でマイクロ法人を営む、または目指す専門職――理学療法士などのセラピスト、トレーナー、研究者、看護・介護職――と、その協力者のための学習サイトです。
+        このサイトは、ヘルスケア・ウェルビーイング領域の事業チームと専門職――理学療法士などのセラピスト、トレーナー、研究者、看護・介護職――が、事業を進めるための学習サイトです。マイクロ法人経営の実践を土台に、少人数でも学びと成果を積み重ねる考え方を共有します。
       </p>
     </header>
 
+    <section class="section" aria-labelledby="journeys-title">
+      <span class="kicker">FIND YOUR WAY</span>
+      <h2 id="journeys-title">いま取り組みたいことから選ぶ</h2>
+      <JourneyPaths />
+      <p class="hint" style="margin-top:1rem">始める＝0→1、伸ばす＝1→10、続ける＝10→100が目安です。「直す」は成長の途中で生じる不具合を見直す入口で、どのフェーズからでも使えます。</p>
+    </section>
+
     <div class="measure prose">
+      <h2 id="methods">HILUCO Methodsの中での位置づけ</h2>
+      <p><a href={SITE.methodsUrl}>HILUCO Methods</a>は、相談・学習・理論研究をつなぐ入口です。事業推進マップは、その中の「考え方を学び、自分で手を動かす」役割を担います。</p>
+      <ul>
+        <li><strong>相談する：</strong><a href={SITE.clientworkUrl}>クライアントワーク</a>。製品・サービスと最初の顧客や実証実績がある、これから広げていく事業チームの課題を一緒に解きます。</li>
+        <li><strong>学ぶ：</strong>事業推進マップ。これから始める人から、再現性を高めたいチーム、継続や継承を考える人まで、必要な教材を選べます。</li>
+        <li><strong>理論を深める：</strong><a href={SITE.researchUrl}>事業身体論</a>。事業を身体として捉え、構造・機能・病態から課題を考える理論研究です。</li>
+      </ul>
+      <p>このマップの8つの経営ループは、学習と実践のための整理です。事業身体論の7系統・16器官系とは分類の目的が異なり、一対一の対応を前提にしていません。ここでの診断は経営上の自己点検であり、理論の妥当性や事業成果を証明するものではありません。</p>
+      <p>クライアントワークの主な対象は、組織向けに製品・サービスを提供する3〜10名程度の事業チームです。この学習サイトは、その前後の段階や個人向けサービスにも扱う範囲を広げています。法人の設立や雇用形態を利用条件にはしていません。</p>
+
       <h2 id="thesis">このサイトの中心にある考え方</h2>
       <blockquote>
         <p>
@@ -27,6 +46,9 @@ import { EVIDENCE, EVIDENCE_IDS, PHASES } from '../data/taxonomy';
       </p>
       <p>問いは、「自分はいくら稼げるか？」から、「<strong>自分たちは、どのような能力を持つ会社になるのか？</strong>」へと変わります。</p>
 
+      <h3>手持ちの資源から、小さく試す</h3>
+      <p>エフェクチュエーションとは、いま持っている知識・経験・人とのつながりから、できることを始め、協力者と一緒に可能性を育てる考え方です。失ってよい時間やお金の範囲を先に決め、小さな行動から学びます。<a href="/lessons/02-means-and-affordable-loss/">講座02で、手持ちの手段と許容損失を整理します。</a></p>
+
       <h2 id="ways">好きなところから学ぶ、5つの入り方</h2>
       <p>順番に読む必要はありません。いまの状況に合わせて、入口を選んでください。</p>
       <div class="table-wrap">
@@ -37,7 +59,7 @@ import { EVIDENCE, EVIDENCE_IDS, PHASES } from '../data/taxonomy';
             <tr><td>具体的な悩みがある</td><td><a href="/symptoms/">悩みから探す</a>で、見立てと処方を読む</td></tr>
             <tr><td>段階はだいたい分かっている</td><td><a href="/phases/">フェーズ別ガイド</a>から、そのフェーズの講座へ</td></tr>
             <tr><td>特定のテーマを深めたい</td><td><a href="/lessons/">講座一覧</a>のマトリクス、<a href="/loops/">8つの経営ループ</a>、<a href="/themes/">横断テーマ</a></td></tr>
-            <tr><td>とにかく手を動かしたい</td><td><a href="/plan-90/">90日でOSをつくる</a>と<a href="/worksheets/">ワークシート</a></td></tr>
+            <tr><td>とにかく手を動かしたい</td><td><a href="/plan-90/">90日で事業を動かす</a>と<a href="/worksheets/">ワークシート</a></td></tr>
           </tbody>
         </table>
       </div>

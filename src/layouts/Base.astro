@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import { SITE } from '../config';
 import { NAV_GROUPS, PRIMARY_NAV } from '../data/nav';
-import BrandMark from '../components/BrandMark.astro';
+import MethodsNav from '../components/MethodsNav.astro';
 
 interface Props {
   title: string;
@@ -31,8 +31,7 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     <meta name="robots" content={robots} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#f8f6f1" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#141819" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#004f80" />
     <meta property="og:type" content={isHome ? 'website' : 'article'} />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={fullTitle} />
@@ -44,12 +43,17 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
   <body>
     <a class="skip-link" href="#main">本文へ移動</a>
     <header class="site-header">
+      <div class="methods-bar">
+        <div class="container methods-bar-inner">
+          <a class="methods-brand" href={SITE.methodsUrl}>HILUCO.inc <span>/ HILUCO Methods</span></a>
+          <MethodsNav />
+        </div>
+      </div>
       <div class="container bar">
         <a class="brand" href="/" aria-label={`${SITE.name} トップへ`}>
-          <BrandMark />
           <span>
             {SITE.name}
-            <small>Healthcare &amp; Well-being Micro-Corp</small>
+            <small>HILUCO Methods / KNOWLEDGE</small>
           </span>
         </a>
         <nav class="nav-primary" aria-label="主要ナビゲーション">
@@ -101,6 +105,11 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
 
     <footer class="site-footer">
       <div class="container">
+        <div class="footer-brand">
+          <a href={SITE.methodsUrl}>HILUCO Methods</a>
+          <p>相談で解く。学んで動かす。理論で深める。</p>
+          <MethodsNav />
+        </div>
         <div class="cols">
           {
             NAV_GROUPS.map((group) => (
@@ -121,6 +130,11 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
           運営：{SITE.publisher}｜サイト版：{SITE.version}｜最終確認日：{SITE.reviewedAt}<br />
           本サイトは経営の学習教材です。医療・法律・税務の個別判断は、それぞれの専門家に確認してください。書籍の紹介は要旨の言い換えであり、原典の代わりにはなりません。
         </p>
+        <div class="footer-end">
+          <a href={SITE.corporateUrl}>株式会社HILUCO 公式サイト</a>
+          <p>浪漫と科学で一隅を照らす</p>
+          <small>© HILUCO Inc. All Rights Reserved.</small>
+        </div>
       </div>
     </footer>
   </body>

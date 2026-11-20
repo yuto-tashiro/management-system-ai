@@ -160,7 +160,7 @@ const lessons = lessonsByNos(await getLessons(), ws.lessons);
         }
         lines.push(`## ${el.dataset.label ?? el.name}`, '', el.value.trim() || '（未記入）', '');
       });
-      lines.push('---', `出典：マイクロ法人経営マップ／${location.origin}${location.pathname}`);
+      lines.push('---', `出典：事業推進マップ／${location.origin}${location.pathname}`);
       return lines.join('\n');
     };
 
